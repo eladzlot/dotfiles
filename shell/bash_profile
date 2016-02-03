@@ -30,6 +30,16 @@ unset -f source_bash_files
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+PATH=~/projects/dotfiles/bin:$PATH
+source ~/projects/dotfiles/bin/z/z.sh
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+alias dev1='ssh ezlotnick@dw2.psyc.virginia.edu'
+alias dev2='ssh ezlotnick@app-dev-01.implicit.harvard.edu'
+alias dev3='ssh ezlotnick@app-dev-02.implicit.harvard.edu'
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 # Clear system messages (e.g.: system copyright notice, the
 # date and time of the last login, the message of the day, etc.)
 

@@ -32,18 +32,21 @@ alias ip='dig +short myip.opendns.com @resolver1.opendns.com'
 
 ## Paul Irish ls stuff
 
+###
+# time to upgrade `ls`
+
 # use coreutils `ls` if possible…
 hash gls >/dev/null 2>&1 || alias gls="ls"
 
-# Detect which `ls` flavor is in use
-if gls --color > /dev/null 2>&1; then # GNU `ls`
-	colorflag="--color"
-else # OS X `ls`
-	colorflag="-G"
-fi
+# always use color, even when piping (to awk,grep,etc)
+if gls --color > /dev/null 2>&1; then colorflag="--color"; else colorflag="-G"; fi;
+export CLICOLOR_FORCE=1
 
-# ls options: F = put `/` after folders, h = byte unit suffixes, color! (even with piping to awk)
-alias ls='CLICOLOR_FORCE=1 gls -aFh ${colorflag} --group-directories-first'
+# ls options: A = include hidden (but not . or ..), F = put `/` after folders, h = byte unit suffixes
+alias ls='gls -AFh ${colorflag} --group-directories-first'
+alias lsd='ls -l | grep "^d"' # only directories
+#    `la` defined in .functions
+###
 
 # List ALL files (colorized() in long format, show permissions in octal
 alias la="ls -l | awk '
@@ -59,10 +62,10 @@ alias la="ls -l | awk '
 # List only directories
 alias lsd='ls -l | grep "^d"'
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-# here's LS_COLORS
-# github.com/trapd00r/LS_COLORS
+# # here's LS_COLORS
+# # github.com/trapd00r/LS_COLORS
 command -v gdircolors >/dev/null 2>&1 || alias gdircolors="dircolors"
 eval "$(gdircolors -b ~/.dircolors)"
 

@@ -77,7 +77,8 @@ main() {
         # Update content and remove untracked files
         git fetch --all &> /dev/null \
             && git reset --hard origin/master &> /dev/null \
-            && git clean -fd  &> /dev/null
+            && git clean -fd  &> /dev/null \
+            && git submodule update --init --recursive
 
         print_result $? 'Update content'
 
