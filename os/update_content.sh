@@ -18,7 +18,7 @@ set_github_ssh_key() {
     # Setup GitHub SSH Key
     # https://help.github.com/articles/generating-ssh-keys
 
-    print_info 'Set up the SSH key'
+    print_info 'Please Set up the gith SSH key (on $GITHUB_SSH_URL)'
 
     if [ ! -r "$sshKeyFile" ]; then
         rm -rf "$sshKeyFile"
@@ -78,7 +78,7 @@ main() {
         git fetch --all &> /dev/null \
             && git reset --hard origin/master &> /dev/null \
             && git clean -fd  &> /dev/null \
-            && git submodule update --init --recursive
+            && git submodule update --init --recursive &> /dev/null
 
         print_result $? 'Update content'
 
