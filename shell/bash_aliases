@@ -7,6 +7,18 @@ source "$DOTFILES_DIR_PATH/os/utils.sh" \
 
 # ----------------------------------------------------------------------
 
+# Editor
+if [ -f /Applications/Sublime\ Text.app/Contents/SharedSupport/bin/subl ]
+  then
+    alias subl='/Applications/Sublime\ Text.app/Contents/SharedSupport/bin/subl -W'
+else
+	alias subl='echo "Sublime text not found"'
+fi
+
+
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 alias ..='cd ..'
 alias ...='cd ../..'
 alias ....='cd ../../..'
