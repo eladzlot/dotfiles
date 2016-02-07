@@ -4,6 +4,10 @@
 		"selected_items":
 		[
 			[
+				"G",
+				"GITHUB_SSH_URL"
+			],
+			[
 				"file",
 				"fileSize"
 			],
@@ -510,44 +514,40 @@
 			[
 				"sequ",
 				"sequencer"
-			],
-			[
-				"p",
-				"properties"
 			]
 		]
 	},
 	"buffers":
 	[
 		{
-			"file": "shell/bash_exports",
+			"file": "os/update_content.sh",
 			"settings":
 			{
-				"buffer_size": 1820,
+				"buffer_size": 2176,
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"file": "shell/bash_aliases",
+			"file": ".gitmodules",
 			"settings":
 			{
-				"buffer_size": 1842,
+				"buffer_size": 67,
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"file": "shell/bash_functions",
+			"file": "shell/bash_prompt",
 			"settings":
 			{
-				"buffer_size": 2013,
+				"buffer_size": 4170,
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"file": "os/create_symbolic_links.sh",
+			"file": "shell/bash_profile",
 			"settings":
 			{
-				"buffer_size": 1478,
+				"buffer_size": 1215,
 				"line_ending": "Unix"
 			}
 		}
@@ -752,14 +752,14 @@
 	},
 	"expanded_folders":
 	[
-		"/Users/eladzlot/dotfiles",
-		"/Users/eladzlot/dotfiles/bin",
-		"/Users/eladzlot/dotfiles/git",
-		"/Users/eladzlot/dotfiles/os",
-		"/Users/eladzlot/dotfiles/shell"
+		"/home/eladzlot/projects/dotfiles"
 	],
 	"file_history":
 	[
+		"/home/eladzlot/projects/dotfiles/os/create_symbolic_links.sh",
+		"/home/eladzlot/projects/dotfiles/shell/bash_exports",
+		"/home/eladzlot/projects/dotfiles/shell/bash_aliases",
+		"/home/eladzlot/projects/dotfiles/shell/bash_functions",
 		"/Users/eladzlot/dotfiles/shell/dircolors",
 		"/Users/eladzlot/dotfiles/README.md",
 		"/Users/eladzlot/dotfiles/.editorconfig",
@@ -883,11 +883,7 @@
 		"/Users/eladzlot/www/PIquest/src/styles/slider.scss",
 		"/Users/eladzlot/www/PIquest/src/example/questScript2.js",
 		"/Users/eladzlot/www/PIquest/src/index.html",
-		"/Users/eladzlot/www/PIquest/test/karma.conf.js",
-		"/Users/eladzlot/www/PIquest/src/js/taskManager/managerTaskLoadService.js",
-		"/Users/eladzlot/www/PIquest/src/js/taskManager/managerGetScriptService.js",
-		"/Users/eladzlot/www/PIquest/src/quest.jsp",
-		"/Users/eladzlot/www/PIquest/src/example/managerScript.js"
+		"/Users/eladzlot/www/PIquest/test/karma.conf.js"
 	],
 	"find":
 	{
@@ -1193,80 +1189,24 @@
 	"groups":
 	[
 		{
-			"selected": 2,
+			"selected": 1,
 			"sheets":
 			[
 				{
 					"buffer": 0,
-					"file": "shell/bash_exports",
+					"file": "os/update_content.sh",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 1820,
+						"buffer_size": 2176,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								1820,
-								1820
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/ShellScript/Shell-Unix-Generic.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 3,
-					"type": "text"
-				},
-				{
-					"buffer": 1,
-					"file": "shell/bash_aliases",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 1842,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								641,
-								641
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/ShellScript/Shell-Unix-Generic.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 113.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 1,
-					"type": "text"
-				},
-				{
-					"buffer": 2,
-					"file": "shell/bash_functions",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 2013,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								30,
-								30
+								2103,
+								2103
 							]
 						],
 						"settings":
@@ -1274,6 +1214,34 @@
 							"syntax": "Packages/ShellScript/Shell-Unix-Generic.tmLanguage",
 							"tab_size": 4,
 							"translate_tabs_to_spaces": true
+						},
+						"translation.x": -0.0,
+						"translation.y": 669.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": ".gitmodules",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 67,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								65,
+								65
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage"
 						},
 						"translation.x": 0.0,
 						"translation.y": 0.0,
@@ -1283,20 +1251,50 @@
 					"type": "text"
 				},
 				{
-					"buffer": 3,
-					"file": "os/create_symbolic_links.sh",
+					"buffer": 2,
+					"file": "shell/bash_prompt",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 1478,
+						"buffer_size": 4170,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								406,
-								406
+								1245,
+								1245
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 525.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "shell/bash_profile",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1215,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								948,
+								948
 							]
 						],
 						"settings":
@@ -1363,6 +1361,26 @@
 		"last_filter": "",
 		"selected_items":
 		[
+			[
+				"mo",
+				".gitmodules"
+			],
+			[
+				"upda",
+				"os/update_content.sh"
+			],
+			[
+				"profil",
+				"shell/bash_profile"
+			],
+			[
+				"prom",
+				"shell/bash_prompt"
+			],
+			[
+				"upd",
+				"os/update_content.sh"
+			],
 			[
 				"syml",
 				"os/create_symbolic_links.sh"
@@ -1854,26 +1872,6 @@
 			[
 				"me",
 				"src/js/app/media/media_constructor.js"
-			],
-			[
-				"mediavi",
-				"src/js/app/media/media_view.js"
-			],
-			[
-				"conf",
-				"src/js/config.js"
-			],
-			[
-				"bowe",
-				"bower.json"
-			],
-			[
-				"med",
-				"src/js/app/media/media_constructor.js"
-			],
-			[
-				"html",
-				"src/js/utils/html.js"
 			]
 		],
 		"width": 0.0
@@ -1881,12 +1879,16 @@
 	"select_project":
 	{
 		"height": 500.0,
-		"last_filter": "qu",
+		"last_filter": "das",
 		"selected_items":
 		[
 			[
+				"das",
+				"~/public_html/dashboard/validator.sublime-project"
+			],
+			[
 				"qu",
-				"~/www/quest/quest.sublime-project"
+				"~/public_html/quest/quest.sublime-project"
 			],
 			[
 				"admi",
