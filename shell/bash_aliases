@@ -8,11 +8,15 @@ source "$DOTFILES_DIR_PATH/os/utils.sh" \
 # ----------------------------------------------------------------------
 
 # Editor
-if [ -f /Applications/Sublime\ Text.app/Contents/SharedSupport/bin/subl ]
-  then
-    alias subl='/Applications/Sublime\ Text.app/Contents/SharedSupport/bin/subl -W'
-else
-	alias subl='echo "Sublime text not found"'
+which subl &> /dev/null
+if [ $? -ne 0 ]; then # if last command exit code was not good
+  # look for subl on osx
+  if [ -f /Applications/Sublime\ Text.app/Contents/SharedSupport/bin/subl ]
+    then
+      alias subl='/Applications/Sublime\ Text.app/Contents/SharedSupport/bin/subl -W'
+  else
+  	alias subl='echo "Sublime text not found"'
+  fi
 fi
 
 
