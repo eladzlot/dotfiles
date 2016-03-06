@@ -64,6 +64,7 @@
 # push easily. http://stackoverflow.com/a/23918418/89484
 [push]
   default = current
+	follwTags = true
 
 [include]
 
