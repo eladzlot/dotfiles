@@ -1,8 +1,10 @@
-## [Cătălin](https://github.com/alrra)’s dotfiles
+## [Elad's](https://github.com/eladzlot) dotfiles
 
 These are the base dotfiles that I start with when I set up a
 new environment. For more specific local needs I use the `.local`
 files described in the [`Local Settings`](#local-settings) section.
+
+These are heavily based on [Cătălin’s dotfiles](https://github.com/alrra/dotfiles).
 
 ## Setup
 
@@ -28,12 +30,6 @@ The setup process will:
   [git](git),
   [shell](shell), and
   [vim](vim) files
-* Install applications / command-line tools for
-  [OS X](os/os_x/installs/main.sh) /
-  [Ubuntu](os/ubuntu/installs/main.sh)
-* Set custom
-  [OS X](os/os_x/preferences/main.sh) /
-  [Ubuntu](os/ubuntu/preferences/main.sh) preferences
 * Install [vim plugins](vim/vim/plugins)
 
 ## Update
