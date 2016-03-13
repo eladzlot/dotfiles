@@ -9,7 +9,7 @@ printf "\n\n"
 echo "***********************"
 echo " Deploying to new dev2";
 echo "***********************"
-ssh ezlotnick@app-dev-01.implicit.harvard.edu "cd ~/pip && git pull && . ~/bin/pip.sh 0.3 && cd ~/quest && git pull && . ~/bin/quest.sh 0.0" || echo "OOPs: maybe VPN isn't active?"
+ssh ezlotnick@app-prod-03.implicit.harvard.edu "cd ~/pip && git pull && . ~/bin/pip.sh 0.3 && cd ~/quest && git pull && . ~/bin/quest.sh 0.0" || echo "OOPs: maybe VPN isn't active?"
 
 printf "\n\n"
 echo "***********************"
