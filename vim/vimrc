@@ -81,6 +81,8 @@ call vundle#begin('~/.vim/plugins')
     Plugin 'ctrlpvim/ctrlp.vim'
     Plugin 'scrooloose/nerdtree'
     Plugin 'scrooloose/syntastic'
+    Plugin 'rking/ag.vim'
+    Plugin 'tpope/vim-fugitive'
 
 call vundle#end()
 
@@ -91,7 +93,7 @@ filetype on
 " Airline.vim {{{
 augroup airline_config
   autocmd!
-  let g:airline_powerline_fonts = 1
+  let g:airline_powerline_fonts = 0
   let g:airline_enable_syntastic = 1
   let g:airline#extensions#tabline#buffer_nr_format = '%s '
   let g:airline#extensions#tabline#buffer_nr_show = 1
@@ -108,6 +110,29 @@ augroup syntastic_config
   let g:syntastic_warning_symbol = '⚠'
   let g:syntastic_html_checkers = [ 'eslint' ]
   let g:syntastic_javascript_checkers = [ 'eslint' ]
+augroup END
+" }}}
+
+" Silver Searcher {{{
+augroup ag_config
+  autocmd!
+
+  if executable("ag")
+    " Note we extract the column as well as the file and line number
+    set grepprg=ag\ --nogroup\ --nocolor\ --column
+    set grepformat=%f:%l:%c%m
+
+    " Have the silver searcher ignore all the same things as wildignore
+    let b:ag_command = 'ag %s -i --nocolor --nogroup'
+
+    for i in split(&wildignore, ",")
+      let i = substitute(i, '\*/\(.*\)/\*', '\1', 'g')
+      let b:ag_command = b:ag_command . ' --ignore "' . substitute(i, '\*/\(.*\)/\*', '\1', 'g') . '"'
+    endfor
+
+    let b:ag_command = b:ag_command . ' --hidden -g ""'
+    let g:ctrlp_user_command = b:ag_command
+  endif
 augroup END
 " }}}
 
@@ -141,7 +166,7 @@ let mapleader = ','			" Use a different mapleader (default is '\')
 inoremap jj <ESC>			" Short cut for escape from insert mode
 nnoremap <Leader>r :source $MYVIMRC<CR> " Reload .vimrc
 nnoremap <leader>w <C-w>v<C-w>l 	" Open vertical split and move to it
-
+nnoremap <leader>s :w<CR>		" Quick save
 
 " Quicker movement between open windows
 nnoremap <C-h> <C-w>h
