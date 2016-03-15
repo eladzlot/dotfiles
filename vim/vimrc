@@ -48,6 +48,7 @@ set visualbell                 " ┐
 set noerrorbells               " │ Disable beeping and window flashing
 set t_vb=                      " ┘ https://vim.wikia.com/wiki/Disable_beeping
 
+set hidden 		       " Allow unsaved buffers in the background
 
 set wildignore+=.DS_Store
 set wildignore+=*.jpg,*.jpeg,*.gif,*.png,*.gif,*.psd,*.o,*.obj,*.min.js
@@ -83,6 +84,7 @@ call vundle#begin('~/.vim/plugins')
     Plugin 'scrooloose/syntastic'
     Plugin 'rking/ag.vim'
     Plugin 'tpope/vim-fugitive'
+    Plugin 'pangloss/vim-javascript'
 
 call vundle#end()
 
@@ -93,7 +95,27 @@ filetype on
 " Airline.vim {{{
 augroup airline_config
   autocmd!
-  let g:airline_powerline_fonts = 0
+  let g:airline_powerline_fonts = 1
+
+  if !exists('g:airline_symbols')
+   let g:airline_symbols = {}
+  endif
+  
+  " unicode symbols
+  let g:airline_left_sep = '»'
+  let g:airline_left_sep = '▶'
+  let g:airline_right_sep = '«'
+  let g:airline_right_sep = '◀'
+  let g:airline_symbols.linenr = '␊'
+  let g:airline_symbols.linenr = '␤'
+  let g:airline_symbols.linenr = '¶'
+  let g:airline_symbols.branch = '⎇'
+  let g:airline_symbols.paste = 'ρ'
+  let g:airline_symbols.paste = 'Þ'
+  let g:airline_symbols.paste = '∥'
+  let g:airline_symbols.whitespace = 'Ξ'
+  
+
   let g:airline_enable_syntastic = 1
   let g:airline#extensions#tabline#buffer_nr_format = '%s '
   let g:airline#extensions#tabline#buffer_nr_show = 1
@@ -185,9 +207,11 @@ map <leader>p :set invpaste paste?<CR>
 " }}}
 
 " Insert newline {{{
-map <leader><Enter> O<ESC>
+map <leader><Enter> o<ESC>
 " }}}
 
 " [,v ] Make the opening of the `.vimrc` file easier
 nmap <leader>v :vsp $MYVIMRC<CR>
 
+" [,n ] Toggle NERDTree
+nnoremap <leader>n :NERDTreeToggle<CR>
