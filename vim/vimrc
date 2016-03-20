@@ -187,9 +187,12 @@ colorscheme solarized          " Use custom color scheme
 
 let mapleader = ','			" Use a different mapleader (default is '\')
 inoremap jj <ESC>			" Short cut for escape from insert mode
-nnoremap <Leader>r :source $MYVIMRC<CR> " Reload .vimrc
 nnoremap <leader>w <C-w>v<C-w>l 	" Open vertical split and move to it
 nnoremap <leader>s :w<CR>		" Quick save
+
+nnoremap <leader>bn :bnext<CR> 		" Next buffer
+nnoremap <leader>bp :bprevious<CR>	" Previous buffer
+nnoremap <leader>bd :bdelete<CR>	" Delete buffer
 
 " Quicker movement between open windows
 nnoremap <C-h> <C-w>h
@@ -210,8 +213,9 @@ map <leader>p :set invpaste paste?<CR>
 map <leader><Enter> o<ESC>
 " }}}
 
-" [,v ] Make the opening of the `.vimrc` file easier
-nmap <leader>v :vsp $MYVIMRC<CR>
+
+nmap <leader>ve :vsp $MYVIMRC<CR>	" [,v ] Make the opening of the `.vimrc` file easier
+nnoremap <Leader>vr :source $MYVIMRC<CR> " Reload .vimrc
 
 " [,n ] Toggle NERDTree
 nnoremap <leader>n :NERDTreeToggle<CR>

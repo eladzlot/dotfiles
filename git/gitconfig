@@ -5,7 +5,7 @@
   user = eladzlot
 [core]
   autocrlf = input
-  editor = vi
+  editor = vim
   # insanely beautiful diffs (from paulirish)
   pager = bash -lc 'diff-highlight | diff-so-fancy | less -r' -
 
