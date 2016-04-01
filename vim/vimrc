@@ -27,6 +27,7 @@ set backupskip+=/private/tmp/* " ┘ for certain files
 
 set cursorline                 " Highlight the current line
 set encoding=utf-8 nobomb      " Use UTF-8 without BOM
+set nowrap		       " Do not wrap lines
 
 set hlsearch                   " Enable search highlighting
 set ignorecase                 " Ignore case in search patterns
@@ -53,7 +54,7 @@ set hidden 		       " Allow unsaved buffers in the background
 set wildignore+=.DS_Store
 set wildignore+=*.jpg,*.jpeg,*.gif,*.png,*.gif,*.psd,*.o,*.obj,*.min.js
 set wildignore+=*/bower_components/*,*/node_modules/*
-set wildignore+=*/smarty/*,*/vendor/*,*/.git/*,*/.hg/*,*/.svn/*,*/.sass-cache/*,*/log/*,*/tmp/*,*/build/*,*/ckeditor/*,*/doc/*,*/source_maps/*,*/dist/*
+set wildignore+=*/smarty/*,*/vendor/*,*/.hg/*,*/.svn/*,*/.sass-cache/*,*/log/*,*/tmp/*,*/build/*,*/ckeditor/*,*/doc/*,*/source_maps/*,*/dist/*
 
 
 " ----------------------------------------------------------------------
@@ -83,6 +84,7 @@ call vundle#begin('~/.vim/plugins')
     Plugin 'scrooloose/nerdtree'
     Plugin 'scrooloose/syntastic'
     Plugin 'rking/ag.vim'
+    Plugin 'tpope/vim-surround'
     Plugin 'tpope/vim-fugitive'
     Plugin 'pangloss/vim-javascript'
 
