@@ -71,6 +71,9 @@ filetype off
 " Set the runtime path to include Vundle
 set runtimepath+=~/.vim/plugins/Vundle.vim
 
+" Use ssh to get all bundles
+let g:vundle_default_git_proto='git'
+
 " Initialize Vundle and specify the path
 " where the plugins should be installed
 call vundle#begin('~/.vim/plugins')
