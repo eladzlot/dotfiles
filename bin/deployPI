@@ -3,16 +3,16 @@
 echo "***********************"
 echo "Deploying to old dev2";
 echo "***********************"
-ssh ezlotnick@dw2.psyc.virginia.edu "cd ~/pip && git pull && . ~/bin/pip.sh 0.3 && cd ~/quest && git pull && . ~/bin/quest.sh 0.0"
+ssh ezlotnick@dw2.psyc.virginia.edu "~/bin/pip.sh 0.3 && ~/bin/quest.sh 0.0"
 
 printf "\n\n"
 echo "***********************"
 echo " Deploying to new dev2";
 echo "***********************"
-ssh ezlotnick@app-prod-03.implicit.harvard.edu "cd ~/pip && git pull && . ~/bin/pip.sh 0.3 && cd ~/quest && git pull && . ~/bin/quest.sh 0.0" || echo "OOPs: maybe VPN isn't active?"
+ssh ezlotnick@app-prod-03.implicit.harvard.edu "~/bin/pip.sh 0.3 && ~/bin/quest.sh 0.0" || echo "OOPs: maybe VPN isn't active?"
 
 printf "\n\n"
 echo "***********************"
 echo " Deploying to new dev3";
 echo "***********************"
-ssh ezlotnick@app-dev-02.implicit.harvard.edu "cd ~/pip && git pull && . ~/bin/pip.sh 0.3 && cd ~/quest && git pull && . ~/bin/quest.sh 0.0" || echo "OOPs: maybe VPN isn't active?"
+ssh ezlotnick@app-dev-02.implicit.harvard.edu "~/bin/pip.sh 0.3 &&  ~/bin/quest.sh 0.0" || echo "OOPs: maybe VPN isn't active?"
