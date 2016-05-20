@@ -19,15 +19,17 @@ set backspace=indent           " ┐
 set backspace+=eol             " │ Allow `backspace`
 set backspace+=start           " ┘ in insert mode
 
-set backupdir=~/.vim/backups   " Set directory for backup files
-set directory=~/.vim/swaps     " Set directory for swap files
-
-set backupskip=/tmp/*          " ┐ Don't create backups
-set backupskip+=/private/tmp/* " ┘ for certain files
+set nobackup                   " no backup files
+set nowritebackup              " only in case you don't want a backup file while editing
+set noswapfile                 " no swap files
 
 set cursorline                 " Highlight the current line
 set encoding=utf-8 nobomb      " Use UTF-8 without BOM
-set nowrap		       " Do not wrap lines
+set nowrap		               " Do not wrap lines
+
+set tabstop=4                  " show existing tab with 4 spaces width
+set shiftwidth=4               " when indenting with '>', use 4 spaces width
+set expandtab                  " On pressing tab, insert 4 spaces
 
 set hlsearch                   " Enable search highlighting
 set ignorecase                 " Ignore case in search patterns
@@ -43,13 +45,13 @@ endif                          " ┘
 set mousehide                  " Hide mouse pointer while typing
 
 set number                     " Show line number
-set laststatus=2	       " Always show ruler
+set laststatus=2	           " Always show ruler
 
 set visualbell                 " ┐
 set noerrorbells               " │ Disable beeping and window flashing
 set t_vb=                      " ┘ https://vim.wikia.com/wiki/Disable_beeping
 
-set hidden 		       " Allow unsaved buffers in the background
+set hidden 		               " Allow unsaved buffers in the background
 
 set wildignore+=.DS_Store
 set wildignore+=*.jpg,*.jpeg,*.gif,*.png,*.gif,*.psd,*.o,*.obj,*.min.js
