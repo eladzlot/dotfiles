@@ -9,6 +9,11 @@
   # insanely beautiful diffs (from paulirish)
   pager = bash -lc 'diff-highlight | diff-so-fancy | less -r' -
 
+# push easily. http://stackoverflow.com/a/23918418/89484
+[push]
+  default = upstream
+  followTags = true
+  
 [alias]
   co = checkout
   ci = commit
@@ -21,9 +26,6 @@
   type = cat-file -t
   dump = cat-file -p
   permission-reset = !git diff -p -R | grep -E \"^(diff|(old|new) mode)\" | git apply
-
-[push]
-    default = current
 
 [credential]
     helper = cache
@@ -61,11 +63,5 @@
 [help]
   autocorrect = 1
 
-# push easily. http://stackoverflow.com/a/23918418/89484
-[push]
-  default = current
-	follwTags = true
-
 [include]
-
     path = ~/.gitconfig.local
