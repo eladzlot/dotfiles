@@ -40,7 +40,6 @@ alias dev3='ssh ezlotnick@app-dev-02.implicit.harvard.edu'
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-# Clear system messages (e.g.: system copyright notice, the
-# date and time of the last login, the message of the day, etc.)
-
-clear
+# activate git auto complete
+# http://apple.stackexchange.com/questions/55875/git-auto-complete-for-branches-at-the-command-line/55886#55886
+. git-completion.bash
