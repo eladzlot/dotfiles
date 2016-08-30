@@ -11,7 +11,7 @@
 
 # push easily. http://stackoverflow.com/a/23918418/89484
 [push]
-  default = upstream
+  default = current # upstream and simple are not supported on servers :(
   followTags = true
   
 [alias]

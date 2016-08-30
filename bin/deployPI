@@ -1,18 +1,34 @@
 #!/bin/bash
+BINDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+function runscript
+{
+    SERVER=$1
+    SCRIPT=$2
+    VERSION=$3
+    ssh $SERVER "bash -s" $VERSION < $SCRIPT $VERSION 
+}
+
+function deploy
+{
+    runscript $1 "$BINDIR/questDeploy.sh" 0.0 \
+        && runscript $1 "$BINDIR/questDeploy.sh" 0.1 \
+        && runscript $1 "$BINDIR/pipDeploy.sh" 0.3
+}
 
 echo "***********************"
 echo "Deploying to old dev2";
 echo "***********************"
-ssh ezlotnick@dw2.psyc.virginia.edu "~/bin/pip.sh 0.3 && ~/bin/quest.sh 0.0"
+deploy ezlotnick@dw2.psyc.virginia.edu 
 
 printf "\n\n"
 echo "***********************"
 echo " Deploying to new dev2";
 echo "***********************"
-ssh ezlotnick@app-prod-03.implicit.harvard.edu "~/bin/pip.sh 0.3 && ~/bin/quest.sh 0.0" || echo "OOPs: maybe VPN isn't active?"
+deploy ezlotnick@app-prod-03.implicit.harvard.edu 
 
 printf "\n\n"
 echo "***********************"
 echo " Deploying to new dev3";
 echo "***********************"
-ssh ezlotnick@app-dev-02.implicit.harvard.edu "~/bin/pip.sh 0.3 &&  ~/bin/quest.sh 0.0" || echo "OOPs: maybe VPN isn't active?"
+deploy ezlotnick@app-dev-02.implicit.harvard.edu 
