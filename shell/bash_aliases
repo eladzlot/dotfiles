@@ -82,9 +82,11 @@ alias lsd='ls -l | grep "^d"'
 
 # # here's LS_COLORS
 # # github.com/trapd00r/LS_COLORS
-command -v gdircolors >/dev/null 2>&1 || alias gdircolors="dircolors"
-eval "$(gdircolors -b ~/.dircolors)"
-
+if command -v gdircolors >/dev/null 2>&1; then
+    eval "$(gdircolors -b ~/.dircolors)"
+else
+    eval "$(dircolors -b ~/.dircolors)"
+fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # Cleanup
