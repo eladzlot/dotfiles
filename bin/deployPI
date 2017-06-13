@@ -13,7 +13,8 @@ function deploy
 {
     runscript $1 "$BINDIR/questDeploy.sh" 0.0 \
         && runscript $1 "$BINDIR/questDeploy.sh" 0.1 \
-        && runscript $1 "$BINDIR/pipDeploy.sh" 0.3
+        && runscript $1 "$BINDIR/pipDeploy.sh" 0.3 \
+        && runscript $1 "$BINDIR/pipDeploy.sh" 0.4
 }
 
 echo "***********************"
