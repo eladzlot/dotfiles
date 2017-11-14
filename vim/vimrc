@@ -86,12 +86,11 @@ call vundle#begin('~/.vim/plugins')
     Plugin 'vim-airline/vim-airline'
     Plugin 'tomasr/molokai'
     Plugin 'ctrlpvim/ctrlp.vim'
-    Plugin 'scrooloose/nerdtree'
     Plugin 'scrooloose/syntastic'
     Plugin 'rking/ag.vim'
     Plugin 'tpope/vim-surround'
-    Plugin 'tpope/vim-fugitive'
     Plugin 'pangloss/vim-javascript'
+    Plugin 'freitass/todo.txt-vim'
 
 call vundle#end()
 
