@@ -27,9 +27,3 @@ echo "***********************"
 echo " Deploying to new dev2";
 echo "***********************"
 deploy ezlotnick@app-prod-03.implicit.harvard.edu 
-
-printf "\n\n"
-echo "***********************"
-echo " Deploying to new dev3";
-echo "***********************"
-deploy ezlotnick@app-dev-02.implicit.harvard.edu 
