@@ -6,7 +6,6 @@ cd "$(dirname "$BASH_SOURCE")" \
 declare -a FILES_TO_SYMLINK=(
 
     'shell/bash_aliases'
-    'shell/bash_autocomplete'
     'shell/bash_exports'
     'shell/bash_functions'
     'shell/bash_logout'
@@ -22,6 +21,8 @@ declare -a FILES_TO_SYMLINK=(
     'git/gitattributes'
     'git/gitconfig'
     'git/gitignore'
+    
+    'dev/eslint.json'
 
     'vim/vim'
     'vim/vimrc'
