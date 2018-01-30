@@ -34,7 +34,7 @@ unset -f source_bash_files
 PATH=~/projects/dotfiles/bin:$PATH
 
 # Use locally-installed npm executables
-PATH=./node_modules/.bin:~/npm/bin$PATH
+PATH=./node_modules/.bin:~/npm/bin:$PATH
 
 source ~/projects/dotfiles/bin/z/z.sh
 
