@@ -59,7 +59,7 @@ set wildignore+=*/bower_components/*,*/node_modules/*,*/.git/*
 set wildignore+=*/smarty/*,*/vendor/*,*/.hg/*,*/.svn/*,*/.sass-cache/*,*/log/*,*/tmp/*,*/build/*,*/ckeditor/*,*/doc/*,*/source_maps/*,*/dist/*
 
 " prevent syntax hl on huge files
-autocmd BufWinEnter * if line2byte(line("$") + 1) > 50000 | syntax clear | endif
+autocmd BufWinEnter * if line2byte(line("$") + 1) > 100000 | syntax clear | endif
 
 " ----------------------------------------------------------------------
 " | Plugins                                                            |
