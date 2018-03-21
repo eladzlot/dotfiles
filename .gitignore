@@ -33,3 +33,6 @@ nbproject
 
 # Folders to ignore
 node_modules
+
+# created by vim
+.netrwhist
