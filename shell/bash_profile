@@ -38,6 +38,10 @@ PATH=./node_modules/.bin:~/npm/bin:$PATH
 
 source ~/projects/dotfiles/bin/z/z.sh
 
+export NVM_DIR="$HOME/projects/dotfiles/bin/nvm"
+source "$NVM_DIR/nvm.sh" # This loads nvm
+
+
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 alias dev1='ssh ezlotnick@dw2.psyc.virginia.edu'
 alias prod3='ssh ezlotnick@app-prod-03.implicit.harvard.edu'
