@@ -41,6 +41,7 @@ source ~/projects/dotfiles/bin/z/z.sh
 export NVM_DIR="$HOME/projects/dotfiles/bin/nvm"
 source "$NVM_DIR/nvm.sh" # This loads nvm
 
+PATH=~/.local/bin:$PATH
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 alias dev1='ssh ezlotnick@dw2.psyc.virginia.edu'

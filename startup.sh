@@ -50,6 +50,7 @@ sudo dpkg -i zettlr.deb
 # Zotero
 wget -qO- https://github.com/retorquere/zotero-deb/releases/download/apt-get/install.sh | sudo bash
 sudo apt install zotero --fix-missing # seems there is a problem here?
+# Need to install manually:  https://github.com/retorquere/zotero-better-bibtex
 
 # exporting
 sudo apt install texlive-latex-extra -y
@@ -61,7 +62,7 @@ sudo apt install r-base r-base-dev libcurl4-openssl-dev libssl-dev libxml2-dev l
 
 R --vanilla << EOF
     install.packages(c("tidyverse"), repos='http://cran.us.r-project.org')
-    install.packages(c("coda","mvtnorm","devtools","loo","dagitty"))
+    install.packages(c("coda","mvtnorm","devtools","loo","dagitty","DiagrammeR))
     devtools::install_github("rmcelreath/rethinking")
 
     Sys.setenv(DOWNLOAD_STATIC_LIBV8 = 1) # only necessary for Linux without the nodejs library / headers
