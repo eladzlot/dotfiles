@@ -89,10 +89,10 @@ call vundle#begin('~/.vim/plugins')
     Plugin 'tomasr/molokai'
     Plugin 'ctrlpvim/ctrlp.vim'
     Plugin 'scrooloose/syntastic'
-    Plugin 'rking/ag.vim'
-    Plugin 'tpope/vim-surround'
+    " Plugin 'tpope/vim-surround'
     Plugin 'pangloss/vim-javascript'
-    Plugin 'freitass/todo.txt-vim'
+    Plugin 'vim-pandoc/vim-pandoc'
+    Plugin 'vim-pandoc/vim-pandoc-syntax' 
 
 call vundle#end()
 
@@ -130,30 +130,6 @@ augroup airline_config
   let g:airline#extensions#tabline#enabled = 1
   let g:airline#extensions#tabline#fnamecollapse = 0
   let g:airline#extensions#tabline#fnamemod = ':t'
-augroup END
-" }}}
-
-" Silver Searcher {{{
-augroup ag_config
-  autocmd!
-
-  if executable("ag")
-    " Note we extract the column as well as the file and line number
-    set grepprg=ag\ --nogroup\ --nocolor\ --column
-    set grepformat=%f:%l:%c%m
-
-    " Have the silver searcher ignore all the same things as wildignore
-    let b:ag_command = 'ag %s -i --nocolor --nogroup'
-
-    for i in split(&wildignore, ",")
-      let i = substitute(i, '\*/\(.*\)/\*', '\1', 'g')
-      let b:ag_command = b:ag_command . ' --ignore "' . substitute(i, '\*/\(.*\)/\*', '\1', 'g') . '"'
-    endfor
-
-    let b:ag_command = b:ag_command . ' --hidden -g ""'
-    let g:ctrlp_user_command = b:ag_command
-    let g:ctrlp_use_caching = 0
-  endif
 augroup END
 " }}}
 
@@ -196,12 +172,6 @@ nnoremap <leader>bn :bnext<CR> 		" Next buffer
 nnoremap <leader>bp :bprevious<CR>	" Previous buffer
 nnoremap <leader>bd :bdelete<CR>	" Delete buffer
 
-" Quicker movement between open windows
-nnoremap <C-h> <C-w>h
-nnoremap <C-j> <C-w>j
-nnoremap <C-k> <C-w>k
-nnoremap <C-l> <C-w>l
-
 " Clear highlighting on escape in normal mode
 nnoremap <esc> :noh<return><esc>
 nnoremap <esc>^[ <esc>^[
@@ -215,9 +185,17 @@ map <leader>p :set invpaste paste?<CR>
 map <leader><Enter> o<ESC>
 " }}}
 
-
 nmap <leader>ve :vsp $MYVIMRC<CR>	" [,v ] Make the opening of the `.vimrc` file easier
 nnoremap <Leader>vr :source $MYVIMRC<CR> " Reload .vimrc
 
-" [,n ] Toggle NERDTree
-nnoremap <leader>n :NERDTreeToggle<CR>
+" pandoc {{{
+augroup pandoc_config
+  autocmd!
+  " we need to use exe in order to use env. variables in the path (there's an
+  " alternative using `let &g' but I can't get it to work
+  exe 'let g:pandoc#biblio#bibs=["'.$HOME.'/projects/zettlr/zotero.json"]'
+  let g:pandoc#modules#disabled = ["folding"]
+  "let g:pandoc#completion#bib#mode = 'citeproc'
+  let g:pandoc#biblio#bib_extensions = ["json", "bib", "bibtex", "ris", "mods", "enl", "wos", "medline", "copac"]
+augroup END
+" }}}

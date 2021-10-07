@@ -53,7 +53,7 @@ sudo apt install zotero --fix-missing # seems there is a problem here?
 # Need to install manually:  https://github.com/retorquere/zotero-better-bibtex
 
 # exporting
-sudo apt install texlive-latex-extra -y
+sudo apt install texlive-latex-extra biber -y
 wget -O pandoc.deb https://github.com/jgm/pandoc/releases/download/2.11.3.1/pandoc-2.11.3.1-1-amd64.deb
 sudo dpkg -i pandoc.deb
 
