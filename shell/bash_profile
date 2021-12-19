@@ -43,10 +43,9 @@ source "$NVM_DIR/nvm.sh" # This loads nvm
 
 PATH=~/.local/bin:$PATH
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-alias dev1='ssh ezlotnick@dw2.psyc.virginia.edu'
-alias prod3='ssh ezlotnick@app-prod-03.implicit.harvard.edu'
-alias dev3='ssh ezlotnick@app-dev-02.implicit.harvard.edu'
+PATH=/usr/local/texlive/2021/bin/x86_64-linux:$PATH
+MANPATH=/usr/local/texlive/2021/texmf-dist/doc/man:$MANPATH 
+INFOPATH=/usr/local/texlive/2021/texmf-dist/doc/info:$INFOPATH 
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 

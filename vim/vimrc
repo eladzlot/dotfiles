@@ -93,6 +93,7 @@ call vundle#begin('~/.vim/plugins')
     Plugin 'pangloss/vim-javascript'
     Plugin 'vim-pandoc/vim-pandoc'
     Plugin 'vim-pandoc/vim-pandoc-syntax' 
+    Plugin 'eigenfoo/stan-vim'
 
 call vundle#end()
 
