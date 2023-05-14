@@ -9,8 +9,8 @@ main() {
 
     # Check if `Git` is installed
 
-    if ! cmd_exists 'git'; then
-        print_error 'Git is required, please install it!\n'
+    if ! cmd_exists 'curl'; then
+        print_error 'curl is required, please install it!\n'
         exit 1
     fi
 
@@ -18,9 +18,9 @@ main() {
 
     # Install / Update vim plugins
 
-    rm -rf ~/.vim/plugins/Vundle.vim &> /dev/null \
-        && git clone git@github.com:VundleVim/Vundle.vim.git ~/.vim/plugins/Vundle.vim &> /dev/null \
-        && printf "\n" | vim +PluginInstall +qall 2> /dev/null
+    rm -f ~/.vim/autoload/plug.vim &> /dev/null \
+        && curl -fLo ~/.vim/autoload/plug.vim --create-dirs  https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim &> /dev/null \
+        && printf "\n" | vim +PlugInstall +qall 2> /dev/null
         #     └─ simulate the ENTER keypress for
         #        the case where there are warnings
     print_result $? 'Install Vim plugins'

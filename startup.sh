@@ -1,4 +1,4 @@
-sudo apt install vim-gtk3 ripgrep code vlc -y
+sudo apt install vim-gtk3 ripgrep fzf bat vlc -y
 
 # apache
 sudo apt install apache2 -y
@@ -71,6 +71,7 @@ R --vanilla << EOF
 EOF
 
 #rstudio
-wget -O rstudio.deb https://download1.rstudio.org/desktop/bionic/amd64/rstudio-1.3.1093-amd64.deb
+wget -O rstudio.deb https://download1.rstudio.org/desktop/jammy/amd64/rstudio-2022.02.3-492-amd64.deb
+#https://download1.rstudio.org/desktop/bionic/amd64/rstudio-2022.02.2-485-amd64.deb
 sudo dpkg -i rstudio.deb
 sudo apt -f install -y

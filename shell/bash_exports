@@ -47,3 +47,6 @@ export LESS_TERMCAP_us=$'\E[04;38;5;146m' # begin underline
 
 # Don't clear the screen after quitting a man page
 export MANPAGER='less -X'
+
+# Default FZF (basically grab everything except node node and git)
+export FZF_DEFAULT_COMMAND='rg --files --follow --no-ignore-vcs --hidden -g "!{node_modules/*,.git/*}"'

@@ -53,6 +53,8 @@ set t_vb=                      " ┘ https://vim.wikia.com/wiki/Disable_beeping
 
 set hidden 		               " Allow unsaved buffers in the background
 
+set spelllang=en_us
+
 set wildignore+=.DS_Store
 set wildignore+=*.jpg,*.jpeg,*.gif,*.png,*.gif,*.psd,*.o,*.obj,*.min.js
 set wildignore+=*/bower_components/*,*/node_modules/*,*/.git/*
@@ -65,39 +67,24 @@ autocmd BufWinEnter * if line2byte(line("$") + 1) > 100000 | syntax clear | endi
 " | Plugins                                                            |
 " ----------------------------------------------------------------------
 
-" Use Vundle to manage the vim plugins
-" https://github.com/gmarik/Vundle.vim
+" Use vim-plug to manage the vim plugins
+" https://github.com/junegunn/vim-plug
 
-" Disable file type detection
-" (required by Vundle)
-filetype off
-
-" Set the runtime path to include Vundle
-set runtimepath+=~/.vim/plugins/Vundle.vim
-
-" Use ssh to get all bundles
-let g:vundle_default_git_proto='git'
-
-" Initialize Vundle and specify the path
+" Initialize Plug and specify the path
 " where the plugins should be installed
-call vundle#begin('~/.vim/plugins')
+call plug#begin('~/.vim/plugins')
 
-    " Let Vundle manage Vundle (this is important!)
-    Plugin 'gmarik/Vundle.vim'
+    Plug 'vim-airline/vim-airline'
+    Plug 'tomasr/molokai'
+    Plug 'scrooloose/syntastic'
+    Plug 'pangloss/vim-javascript'
+    Plug 'vim-pandoc/vim-pandoc'
+    Plug 'vim-pandoc/vim-pandoc-syntax' 
+    Plug 'eigenfoo/stan-vim'
+    Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+    Plug 'junegunn/fzf.vim'
 
-    Plugin 'vim-airline/vim-airline'
-    Plugin 'tomasr/molokai'
-    Plugin 'ctrlpvim/ctrlp.vim'
-    Plugin 'scrooloose/syntastic'
-    " Plugin 'tpope/vim-surround'
-    Plugin 'pangloss/vim-javascript'
-    Plugin 'vim-pandoc/vim-pandoc'
-    Plugin 'vim-pandoc/vim-pandoc-syntax' 
-    Plugin 'eigenfoo/stan-vim'
-
-call vundle#end()
-
-filetype on
+call plug#end()
 
 " Plugin Configuration -------------------------------------------------------------
 
@@ -143,9 +130,9 @@ set t_Co=256                   " Enable full-color support
 set background=dark            " Use colors that look good
                                " on a dark background
 
-colorscheme molokai            " Use custom color scheme
-let g:molokai_original = 1
-let g:rehash256 = 1
+ colorscheme molokai            " Use custom color scheme
+ let g:molokai_original = 0
+ let g:rehash256 = 1
 
 " ----------------------------------------------------------------------
 " | Syntax checker						       |
@@ -161,12 +148,24 @@ augroup END
 " }}}
 
 " ----------------------------------------------------------------------
+" | Pandoc                                                             |
+" ----------------------------------------------------------------------
+augroup pandoc_config
+  autocmd!
+  " we need to use exe in order to use env. variables in the path (there's an
+  " alternative using `let &g' but I can't get it to work
+  exe 'let g:pandoc#biblio#bibs=["'.$HOME.'/projects/zettlr/zotero.json"]'
+  " let g:pandoc#modules#disabled = ["folding"]
+  "let g:pandoc#completion#bib#mode = 'citeproc'
+  let g:pandoc#biblio#bib_extensions = ["json", "bib", "bibtex", "ris", "mods", "enl", "wos", "medline", "copac"]
+augroup END
+
+" ----------------------------------------------------------------------
 " | Key Mappings                                                       |
 " ----------------------------------------------------------------------
 
 let mapleader = ','			" Use a different mapleader (default is '\')
 inoremap jj <ESC>			" Short cut for escape from insert mode
-nnoremap <leader>w <C-w>v<C-w>l 	" Open vertical split and move to it
 nnoremap <leader>s :w<CR>		" Quick save
 
 nnoremap <leader>bn :bnext<CR> 		" Next buffer
@@ -178,25 +177,58 @@ nnoremap <esc> :noh<return><esc>
 nnoremap <esc>^[ <esc>^[
 
 " Paste toggle (,p) {{{
-set pastetoggle=<leader>p
-map <leader>p :set invpaste paste?<CR>
+    set pastetoggle=<leader>p
+    map <leader>p :set invpaste paste?<CR>
 " }}}
 
-" Insert newline {{{
-map <leader><Enter> o<ESC>
+" edit vimrc {{{
+    nmap <leader>ve :vsp $MYVIMRC<CR>	" [,v ] Make the opening of the `.vimrc` file easier
+    nnoremap <Leader>vr :source $MYVIMRC<CR> " Reload .vimrc
 " }}}
 
-nmap <leader>ve :vsp $MYVIMRC<CR>	" [,v ] Make the opening of the `.vimrc` file easier
-nnoremap <Leader>vr :source $MYVIMRC<CR> " Reload .vimrc
+nnoremap <C-P> :Files<CR>
+nnoremap <C-F> :Rg 
 
-" pandoc {{{
-augroup pandoc_config
-  autocmd!
-  " we need to use exe in order to use env. variables in the path (there's an
-  " alternative using `let &g' but I can't get it to work
-  exe 'let g:pandoc#biblio#bibs=["'.$HOME.'/projects/zettlr/zotero.json"]'
-  let g:pandoc#modules#disabled = ["folding"]
-  "let g:pandoc#completion#bib#mode = 'citeproc'
-  let g:pandoc#biblio#bib_extensions = ["json", "bib", "bibtex", "ris", "mods", "enl", "wos", "medline", "copac"]
-augroup END
-" }}}
+" Plain text to markdown
+nnoremap <leader>x :s/\. /.\r/g<CR>
+
+" ----------------------------------------------------------------------
+" | Auto complete citations                                            |
+" ----------------------------------------------------------------------
+"  @TODO: move to vim/ftplugin
+
+function! s:CiteSourceFZF(lines)
+    let s:bib = pandoc#bibliographies#GetSuggestions('')
+    let s:arr = map(copy(s:bib), "v:val['word'].' : '.v:val['menu']")
+    return (s:arr)
+endfunction
+
+function! s:CiteReducerFZF(lines)
+    let s:ids = map(a:lines, "'@'.(split(v:val, ' : ')[0])")    " for each line, pick id and prepend @
+    return join(s:ids, '; ')                                    " join entries with ;
+endfunction
+
+autocmd FileType markdown,rmd inoremap <buffer> <expr> <c-x><c-o> fzf#vim#complete({
+      \ 'source':  function('<sid>CiteSourceFZF'),
+      \ 'reducer': function('<sid>CiteReducerFZF'),
+      \ 'options': '--layout="reverse-list" --border --multi --margin 15%'})
+
+" zettlr
+
+function! s:New_zettl()
+    let filename = strftime('%Y%m%d%H%M%S')
+    echom filename
+    execute 'edit '.filename.'.md'
+    call append(0, '---')
+    call append(1, 'id: '.filename)
+    call append(2, 'title: ')
+    call append(3, '---')
+    execute "normal! 3GA "
+endfunction
+
+nnoremap <leader>zn :call <sid>New_zettl()<CR>
+nnoremap <leader>zf :execute 'Rg '.expand('<cword>')<CR> 
+
+" single line do and dp for diffget
+nnoremap <silent> <leader>dp V:diffput<cr>
+nnoremap <silent> <leader>dg V:diffget<cr>
