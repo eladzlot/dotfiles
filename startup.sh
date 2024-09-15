@@ -1,5 +1,5 @@
 sudo apt install vim-gtk3 ripgrep fzf bat vlc -y
-
+sudo apt install libfontconfig1-dev
 # apache
 sudo apt install apache2 -y
 mkdir -p $HOME/www
@@ -27,10 +27,10 @@ install_chrome_extension () {
   preferences_dir_path="/opt/google/chrome/extensions"
   pref_file_path="$preferences_dir_path/$1.json"
   upd_url="https://clients2.google.com/service/update2/crx"
-  mkdir -p "$preferences_dir_path"
-  echo "{" > "$pref_file_path"
-  echo "  \"external_update_url\": \"$upd_url\"" >> "$pref_file_path"
-  echo "}" >> "$pref_file_path"
+  sudo mkdir -p "$preferences_dir_path"
+  echo "{" | sudo tee "$pref_file_path"
+  echo "  \"external_update_url\": \"$upd_url\"" |  sudo tee --append "$pref_file_path"
+  echo "}" |  sudo tee --append "$pref_file_path"
   echo Added \""$pref_file_path"\" ["$2"]
 }
 
@@ -44,8 +44,8 @@ wget https://zoom.us/client/latest/zoom_amd64.deb
 sudo apt install ./zoom_amd64.deb -y
 
 # zettlr
-wget -O zettlr.deb https://github.com/Zettlr/Zettlr/releases/download/v1.8.2/Zettlr-1.8.2-amd64.deb
-sudo dpkg -i zettlr.deb
+#wget -O zettlr.deb https://github.com/Zettlr/Zettlr/releases/download/v1.8.2/Zettlr-1.8.2-amd64.deb
+#sudo dpkg -i zettlr.deb
 
 # Zotero
 wget -qO- https://github.com/retorquere/zotero-deb/releases/download/apt-get/install.sh | sudo bash
@@ -53,7 +53,7 @@ sudo apt install zotero --fix-missing # seems there is a problem here?
 # Need to install manually:  https://github.com/retorquere/zotero-better-bibtex
 
 # exporting
-sudo apt install texlive-latex-extra biber -y
+sudo apt install texlive-latex-extra texlive-extra-utils biber -y
 wget -O pandoc.deb https://github.com/jgm/pandoc/releases/download/2.11.3.1/pandoc-2.11.3.1-1-amd64.deb
 sudo dpkg -i pandoc.deb
 
@@ -71,7 +71,6 @@ R --vanilla << EOF
 EOF
 
 #rstudio
-wget -O rstudio.deb https://download1.rstudio.org/desktop/jammy/amd64/rstudio-2022.02.3-492-amd64.deb
-#https://download1.rstudio.org/desktop/bionic/amd64/rstudio-2022.02.2-485-amd64.deb
+wget -O rstudio.deb https://download1.rstudio.org/electron/jammy/amd64/rstudio-2023.03.1-446-amd64.deb
 sudo dpkg -i rstudio.deb
 sudo apt -f install -y

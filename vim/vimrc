@@ -54,6 +54,7 @@ set t_vb=                      " ┘ https://vim.wikia.com/wiki/Disable_beeping
 set hidden 		               " Allow unsaved buffers in the background
 
 set spelllang=en_us
+inoremap <C-l> <c-g>u<Esc>[s1z=`]a<c-g>u
 
 set wildignore+=.DS_Store
 set wildignore+=*.jpg,*.jpeg,*.gif,*.png,*.gif,*.psd,*.o,*.obj,*.min.js
@@ -190,7 +191,7 @@ nnoremap <C-P> :Files<CR>
 nnoremap <C-F> :Rg 
 
 " Plain text to markdown
-nnoremap <leader>x :s/\. /.\r/g<CR>
+nnoremap <leader>x :s/\([.?]\) /\1\r/g<CR>
 
 " ----------------------------------------------------------------------
 " | Auto complete citations                                            |

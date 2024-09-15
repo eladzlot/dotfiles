@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# Check if an argument has been provided
+if [ -z "$1" ]; then
+  echo "Usage: $0 <filename_without_extension>"
+  echo "Example: $0 document"
+  echo "This will convert 'document.md' to 'document.pdf' using Pandoc."
+  exit 1
+fi
+
+# Proceed with Pandoc conversion if an argument is provided
+pandoc "$1".md -o "$1".pdf --citeproc --bibliography=$HOME/projects/zettlr/zotero.json
+xdg-open "$1".pdf

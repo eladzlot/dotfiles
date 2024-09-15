@@ -42,10 +42,11 @@ export NVM_DIR="$HOME/projects/dotfiles/bin/nvm"
 source "$NVM_DIR/nvm.sh" # This loads nvm
 
 PATH=~/.local/bin:$PATH
+PATH=~/bin:$PATH
 
-PATH=/usr/local/texlive/2021/bin/x86_64-linux:$PATH
-MANPATH=/usr/local/texlive/2021/texmf-dist/doc/man:$MANPATH 
-INFOPATH=/usr/local/texlive/2021/texmf-dist/doc/info:$INFOPATH 
+PATH=/usr/local/texlive/2024/bin/x86_64-linux:$PATH
+MANPATH=/usr/local/texlive/2024/texmf-dist/doc/man:$MANPATH 
+INFOPATH=/usr/local/texlive/2024/texmf-dist/doc/info:$INFOPATH 
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
