@@ -1,0 +1,150 @@
+#!/usr/bin/env bash
+# render - wrapper for pandoc with your defaults (Pop!_OS)
+# Default output: PDF. Any pandoc output format is accepted.
+# Bibliography/CSL assumed under ~/projects/zettlr/.
+
+set -euo pipefail
+
+BIB="$HOME/projects/zettlr/zotero.json"
+CSL="$HOME/projects/zettlr/apa.csl"
+
+print_help() {
+  cat <<'EOF'
+Usage:
+  render [options] <input> [-- <extra pandoc args...>]
+
+Description:
+  Convert a Markdown file using your standard bibliography and CSL.
+  - Outputs PDF by default; use -t to pick any pandoc output format.
+  - <input> may be given with or without the .md suffix.
+  - The result is opened afterwards unless --no-open (or in an SSH session).
+  - Anything after a literal -- is passed directly to pandoc.
+
+Options:
+  -h, --help        Show this help and exit.
+  -t, --to FORMAT   Output format (pdf, docx, html, tex, epub, ...). Default: pdf.
+  --pdf             Shorthand for --to pdf.
+  --docx            Shorthand for --to docx.
+  -n, --no-open     Do not open the result when done.
+
+Examples:
+  render manual
+  render manual.md
+  render --docx manual
+  render -t html manual
+  render manual -- --toc --metadata title="My Doc"
+
+Environment:
+  PDF_ENGINE     If set, used as the pandoc --pdf-engine (e.g., xelatex).
+
+Notes:
+  Expects:
+    ~/projects/zettlr/zotero.json
+    ~/projects/zettlr/apa.csl
+EOF
+}
+
+# parse args
+OUTFMT="pdf"
+INPUT=""
+OPEN=1
+EXTRA_ARGS=()
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -h|--help)     print_help; exit 0 ;;
+    -t|--to)
+      [[ $# -ge 2 ]] || { echo "Error: --to requires a format." >&2; exit 2; }
+      OUTFMT="$2"; shift 2 ;;
+    --pdf)         OUTFMT="pdf"; shift ;;
+    --docx)        OUTFMT="docx"; shift ;;
+    -n|--no-open)  OPEN=0; shift ;;
+    --)            shift; EXTRA_ARGS+=("$@"); break ;;
+    -*)            echo "Error: unknown option '$1'." >&2; echo; print_help; exit 2 ;;
+    *)             INPUT="$1"; shift ;;
+  esac
+done
+
+# validate input
+if [[ -z "$INPUT" ]]; then
+  echo "Error: missing input file." >&2
+  echo >&2
+  print_help
+  exit 2
+fi
+
+# normalize to .md then check existence once
+if [[ "$INPUT" == *.md ]]; then
+  SRC="$INPUT"
+else
+  SRC="$INPUT.md"
+fi
+
+if [[ ! -f "$SRC" ]]; then
+  echo "Error: input file not found: '$SRC'." >&2
+  exit 1
+fi
+
+# tool & resource checks
+if ! command -v pandoc >/dev/null 2>&1; then
+  echo "Error: pandoc is not installed or not on PATH." >&2
+  exit 1
+fi
+if [[ ! -f "$BIB" ]]; then
+  echo "Error: bibliography not found at: $BIB" >&2
+  exit 1
+fi
+if [[ ! -f "$CSL" ]]; then
+  echo "Error: CSL file not found at: $CSL" >&2
+  exit 1
+fi
+
+# derive output path (some formats don't name their own extension)
+case "$OUTFMT" in
+  latex|context)           EXT="tex" ;;
+  beamer)                  EXT="pdf" ;;
+  markdown|gfm|commonmark) EXT="md" ;;
+  plain)                   EXT="txt" ;;
+  *)                       EXT="$OUTFMT" ;;
+esac
+
+DIRNAME="$(dirname -- "$SRC")"
+BASENAME="$(basename -- "$SRC")"
+STEM="${BASENAME%.md}"
+OUT="$DIRNAME/$STEM.$EXT"
+
+# PDF engine selection (only relevant when pandoc typesets a PDF)
+PDF_ARGS=()
+if [[ "$EXT" == "pdf" ]]; then
+  CANDIDATES=()
+  if [[ -n "${PDF_ENGINE:-}" ]]; then CANDIDATES+=("$PDF_ENGINE"); fi
+  CANDIDATES+=("xelatex" "lualatex" "pdflatex")
+  for eng in "${CANDIDATES[@]}"; do
+    if command -v "$eng" >/dev/null 2>&1; then
+      PDF_ARGS=(--pdf-engine="$eng")
+      break
+    fi
+  done
+  if [[ ${#PDF_ARGS[@]} -eq 0 ]]; then
+    echo "Warning: no LaTeX engine found (xelatex/lualatex/pdflatex). PDF build may fail." >&2
+  fi
+fi
+
+# run pandoc
+pandoc \
+  --citeproc \
+  --bibliography="$BIB" \
+  --csl="$CSL" \
+  --metadata reference-section-title="References" \
+  --to="$OUTFMT" \
+  "${PDF_ARGS[@]}" \
+  "$SRC" \
+  -o "$OUT" \
+  "${EXTRA_ARGS[@]}"
+
+echo "Wrote $OUT"
+
+# open the result only after a successful build, and not over SSH
+if [[ "$OPEN" -eq 1 && -z "${SSH_TTY:-}" ]] && command -v xdg-open >/dev/null 2>&1; then
+  xdg-open "$OUT" >/dev/null 2>&1 &
+fi

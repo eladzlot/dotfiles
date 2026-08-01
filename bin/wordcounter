@@ -1,0 +1,207 @@
+#!/usr/bin/env bash
+
+# wordcount-pandoc.sh
+#
+# Reproducible word count from Pandoc-readable documents (e.g., .docx, .md),
+# with options to include/exclude:
+#   - tables
+#   - references section (e.g., "References" / "Bibliography")
+#   - first page (best-effort; relies on PageBreak detection in Pandoc's AST)
+#
+# Default behavior (journal-friendly):
+#   - EXCLUDES tables
+#   - EXCLUDES references section
+#   - INCLUDES first page
+#
+# Requirements:
+#   - pandoc installed and on PATH
+#
+# Examples:
+#   ./wordcount-pandoc.sh manuscript.docx
+#   ./wordcount-pandoc.sh manuscript.docx --include-tables
+#   ./wordcount-pandoc.sh manuscript.docx --include-references
+#   ./wordcount-pandoc.sh manuscript.docx --exclude-first-page
+#   ./wordcount-pandoc.sh manuscript.docx --print-text | less
+#
+# Notes on "first page":
+#   Pandoc can represent page breaks as a PageBreak block (newer versions, and
+#   depending on input). If no page break is detected, --exclude-first-page
+#   may have no effect. Use --print-text to sanity check.
+
+set -euo pipefail
+
+print_help() {
+  cat <<'EOF'
+Usage:
+  wordcount-pandoc.sh <input_file> [options]
+
+Options:
+  -t, --include-tables        Include table contents in the count (default: exclude tables)
+  -r, --include-references    Include the references section in the count (default: exclude)
+  -f, --exclude-first-page    Exclude content up to the first detected page break (best-effort)
+  -p, --print-text            Print the filtered plain text (instead of printing the word count)
+  -h, --help                  Show this help
+
+What counts as "references"?
+  By default, the script removes a section starting at a Heading whose text is
+  exactly (case-insensitive): "references" or "bibliography".
+  It removes that heading and everything after it.
+
+Exit codes:
+  0 success
+  1 usage/argument error
+  2 missing dependency/input
+EOF
+}
+
+die() { echo "Error: $*" >&2; exit 1; }
+
+need_cmd() {
+  command -v "$1" >/dev/null 2>&1 || die "Missing dependency: $1"
+}
+
+INPUT=""
+INCLUDE_TABLES=0
+INCLUDE_REFERENCES=0
+EXCLUDE_FIRST_PAGE=0
+PRINT_TEXT=0
+
+# Parse args
+if [[ $# -lt 1 ]]; then
+  print_help
+  exit 1
+fi
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -h|--help)
+      print_help
+      exit 0
+      ;;
+    -t|--include-tables)
+      INCLUDE_TABLES=1
+      shift
+      ;;
+    -r|--include-references)
+      INCLUDE_REFERENCES=1
+      shift
+      ;;
+    -f|--exclude-first-page)
+      EXCLUDE_FIRST_PAGE=1
+      shift
+      ;;
+    -p|--print-text)
+      PRINT_TEXT=1
+      shift
+      ;;
+    -*)
+      die "Unknown option: $1 (use --help)"
+      ;;
+    *)
+      if [[ -z "$INPUT" ]]; then
+        INPUT="$1"
+      else
+        die "Too many positional arguments: '$INPUT' and '$1' (use --help)"
+      fi
+      shift
+      ;;
+  esac
+done
+
+need_cmd pandoc
+
+[[ -n "$INPUT" ]] || die "No input file provided"
+[[ -f "$INPUT" ]] || die "Input file not found: $INPUT"
+
+# Create a temporary Lua filter file
+LUA_FILTER="$(mktemp -t pandoc-wordcount-filter.XXXXXX.lua)"
+cleanup() { rm -f "$LUA_FILTER"; }
+trap cleanup EXIT
+
+# Write Lua filter. It reads flags from environment variables.
+cat > "$LUA_FILTER" <<'LUA'
+-- Pandoc Lua filter for controlled word counting.
+-- Flags are passed via environment variables:
+--   WC_INCLUDE_TABLES: "0" or "1"
+--   WC_INCLUDE_REFS:   "0" or "1"
+--   WC_EXCL_FIRST:     "0" or "1"
+
+local include_tables = (os.getenv("WC_INCLUDE_TABLES") == "1")
+local include_refs   = (os.getenv("WC_INCLUDE_REFS") == "1")
+local excl_first     = (os.getenv("WC_EXCL_FIRST") == "1")
+
+local in_refs = false
+local seen_first_pagebreak = false
+
+-- Convert heading content to lowercase plain string for matching.
+local function heading_text_lower(h)
+  local s = pandoc.utils.stringify(h.content or h)
+  return string.lower(s:gsub("^%s+", ""):gsub("%s+$", ""))
+end
+
+local function is_refs_heading(h)
+  local t = heading_text_lower(h)
+  return (t == "references" or t == "bibliography")
+end
+
+-- Remove tables if requested.
+function Table(el)
+  if include_tables then
+    return el
+  end
+  return {}
+end
+
+-- Toggle references removal starting at a "References"/"Bibliography" heading.
+function Header(el)
+  if (not include_refs) and is_refs_heading(el) then
+    in_refs = true
+    return {} -- drop the heading itself
+  end
+  if in_refs and (not include_refs) then
+    return {} -- drop any later headers too
+  end
+  return el
+end
+
+-- Best-effort first page exclusion using a detected PageBreak.
+-- If Pandoc doesn't represent page breaks, this may do nothing.
+function PageBreak(el)
+  if not excl_first then
+    return el
+  end
+  seen_first_pagebreak = true
+  return {} -- drop the page break itself
+end
+
+-- Main block filter:
+-- - If excluding first page: drop blocks until first PageBreak is seen.
+-- - If excluding references: once refs start, drop everything after.
+function Block(el)
+  if in_refs and (not include_refs) then
+    return {}
+  end
+
+  if excl_first and (not seen_first_pagebreak) then
+    -- Keep blocks only after the first PageBreak.
+    -- (PageBreak() handler sets seen_first_pagebreak.)
+    return {}
+  end
+
+  return el
+end
+
+LUA
+
+# Export flags for the Lua filter
+export WC_INCLUDE_TABLES="$INCLUDE_TABLES"
+export WC_INCLUDE_REFS="$INCLUDE_REFERENCES"
+export WC_EXCL_FIRST="$EXCLUDE_FIRST_PAGE"
+
+# Convert to plain text through pandoc + filter
+# --wrap=none keeps text predictable for downstream tooling.
+if [[ "$PRINT_TEXT" -eq 1 ]]; then
+  pandoc "$INPUT" -t plain --wrap=none --lua-filter="$LUA_FILTER"
+else
+  pandoc "$INPUT" -t plain --wrap=none --lua-filter="$LUA_FILTER" | wc -w
+fi
