@@ -76,7 +76,7 @@ inoremap <C-l> <c-g>u<Esc>[s1z=`]a<c-g>u
 set wildignore+=.DS_Store
 set wildignore+=*.jpg,*.jpeg,*.gif,*.png,*.gif,*.psd,*.o,*.obj,*.min.js
 set wildignore+=*/bower_components/*,*/node_modules/*,*/.git/*
-set wildignore+=*/smarty/*,*/vendor/*,*/.hg/*,*/.svn/*,*/.sass-cache/*,*/log/*,*/tmp/*,*/build/*,*/ckeditor/*,*/doc/*,*/source_maps/*,*/dist/*
+set wildignore+=*/smarty/*,*/vendor/*,*/.hg/*,*/.svn/*,*/.sass-cache/*,*/log/*,*/tmp/*,*/build/*,*/ckeditor/*,*/source_maps/*,*/dist/*
 
 " prevent syntax hl on huge files
 " (grouped so re-sourcing this file replaces the autocmd instead of stacking copies)
@@ -98,7 +98,7 @@ call plug#begin('~/.vim/plugins')
 
     Plug 'vim-airline/vim-airline'
     Plug 'tomasr/molokai'
-    Plug 'scrooloose/syntastic'
+    Plug 'dense-analysis/ale'
     Plug 'pangloss/vim-javascript'
     Plug 'vim-pandoc/vim-pandoc'
     Plug 'vim-pandoc/vim-pandoc-syntax' 
@@ -151,10 +151,29 @@ colorscheme molokai            " Use custom color scheme
 " | Syntax checker						       |
 " ----------------------------------------------------------------------
 
-" Syntastic.vim {{{
-let g:syntastic_error_symbol = '✗'
-let g:syntastic_warning_symbol = '⚠'
-let g:syntastic_javascript_checkers = ['eslint']
+" ALE {{{
+" Only run the linters named here, so ALE does not pick up whatever else it
+" happens to find on PATH for a filetype.
+" ALE aliases rmd -> r, but with ale_linters_explicit that only resolves the
+" linter definition; the selection still comes from this dict, so rmd needs
+" its own entry. Drop the rmd line if linting manuscripts turns out noisy.
+let g:ale_linters_explicit = 1
+let g:ale_linters = {
+      \ 'javascript': ['eslint'],
+      \ 'r':          ['lintr'],
+      \ 'rmd':        ['lintr'],
+      \ }
+
+let g:ale_sign_error = '✗'
+let g:ale_sign_warning = '⚠'
+
+" Lint on save rather than on every keystroke - less noise while writing.
+let g:ale_lint_on_text_changed = 'never'
+let g:ale_lint_on_insert_leave = 0
+let g:ale_lint_on_enter = 0
+
+nnoremap <leader>an :ALENextWrap<CR>
+nnoremap <leader>ap :ALEPreviousWrap<CR>
 " }}}
 
 " ----------------------------------------------------------------------
