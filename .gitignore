@@ -35,5 +35,15 @@ nbproject
 node_modules
 
 # created by vim
+# (~/.vim is a symlink to vim/vim, so most of what lands there is generated:
+#  plugins are installed by vim-plug, plug.vim itself is re-downloaded by
+#  os/install_vim_plugins.sh, and *.spl are compiled from the .add wordlists.
+#  Hand-written config under vim/vim - autoload/, ftplugin/, spell/*.add - is
+#  tracked.)
 .netrwhist
-vim/vim
+vim/vim/plugins/
+vim/vim/autoload/plug.vim
+vim/vim/backups/
+vim/vim/swaps/
+vim/vim/undos/
+vim/vim/spell/*.spl
