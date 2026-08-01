@@ -164,6 +164,11 @@ let g:ale_linters = {
       \ 'rmd':        ['lintr'],
       \ }
 
+" ALE still passes lintr's with_defaults(), which lintr 3.x removed - the
+" Rscript call then dies with "could not find function" and ALE silently
+" reports nothing. linters_with_defaults() is the replacement.
+let g:ale_r_lintr_options = 'linters_with_defaults()'
+
 let g:ale_sign_error = '✗'
 let g:ale_sign_warning = '⚠'
 
