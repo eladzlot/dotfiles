@@ -9,7 +9,6 @@ source_bash_files() {
 
     declare -r -a FILES_TO_SOURCE=(
         'bash_aliases'
-        'bash_autocomplete'
         'bash_exports'
         'bash_functions'
         'bash_options'
@@ -33,20 +32,34 @@ unset -f source_bash_files
 # Use dotfiles specific executibles
 PATH=~/projects/dotfiles/bin:$PATH
 
-# Use locally-installed npm executables
-PATH=./node_modules/.bin:~/npm/bin:$PATH
+# Use locally-installed npm executables.
+#
+# NOTE: ./node_modules/.bin was deliberately removed - a relative directory on
+# PATH means every directory you cd into can shadow your commands with its own
+# binaries. Use `npx <cmd>` to run a project-local tool instead.
+PATH=~/npm/bin:$PATH
 
 source ~/projects/dotfiles/bin/z/z.sh
 
-export NVM_DIR="$HOME/projects/dotfiles/bin/nvm"
-source "$NVM_DIR/nvm.sh" # This loads nvm
+# Node, via fnm (installed by install.sh into ~/.local/bin).
+#
+# Deliberately NOT `eval "$(fnm env)"`: that runs fnm on every shell start.
+# This symlink follows whatever `fnm default <version>` points at, so the
+# default node is on PATH for free. Run `fnm use <version>` in a shell when a
+# project needs a different one - that shadows this entry for that shell only.
+PATH=~/.local/share/fnm/aliases/default/bin:$PATH
 
 PATH=~/.local/bin:$PATH
 PATH=~/bin:$PATH
 
 PATH=/usr/local/texlive/2024/bin/x86_64-linux:$PATH
-MANPATH=/usr/local/texlive/2024/texmf-dist/doc/man:$MANPATH 
-INFOPATH=/usr/local/texlive/2024/texmf-dist/doc/info:$INFOPATH 
+MANPATH=/usr/local/texlive/2024/texmf-dist/doc/man:$MANPATH
+INFOPATH=/usr/local/texlive/2024/texmf-dist/doc/info:$INFOPATH
+
+# Every assignment above is a bare `PATH=`, which only stays exported because
+# the parent shell already exported PATH. nvm.sh used to `export PATH` itself
+# and quietly covered for that; with nvm gone, say it explicitly.
+export PATH MANPATH INFOPATH
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
