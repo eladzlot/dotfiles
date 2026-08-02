@@ -66,8 +66,7 @@ export PATH MANPATH INFOPATH
 # memory as the z.sh it replaces, and the old ~/.z database was imported.
 eval "$(zoxide init bash)"
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-# activate git auto complete
-# http://apple.stackexchange.com/questions/55875/git-auto-complete-for-branches-at-the-command-line/55886#55886
-. git-completion.bash
+# NOTE: git completion used to be a vendored copy sourced from bin/. Ubuntu's
+# bash-completion package ships a current one at
+# /usr/share/bash-completion/completions/git and loads it on demand via
+# /etc/bash.bashrc, so nothing needs doing here.
