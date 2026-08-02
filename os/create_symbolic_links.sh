@@ -33,6 +33,8 @@ declare -a NESTED_SYMLINKS=(
     'git/gitignore:.config/git/ignore'
     'git/gitattributes:.config/git/attributes'
 
+    'claude/settings.json:.claude/settings.json'
+    'claude/CLAUDE.md:.claude/CLAUDE.md'
 )
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
