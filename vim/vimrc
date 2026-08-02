@@ -78,9 +78,12 @@ let &t_fe = ""
 let &t_fd = ""
 
 " t_u7 asks the terminal to report the cursor position, for ambiguous-width
-" detection. The reply ends in "R", and because <esc> is mapped in normal mode
-" (see the Key Mappings section) that reply can leak in and drop us into
+" detection. The reply ends in "R", which used to leak in and drop us into
 " Replace mode on startup. We don't need the detection; ambiwidth is single.
+"
+" The leak itself came from mapping <esc> in normal mode, which is now gone
+" (see Key Mappings). This is kept anyway: the detection buys us nothing here,
+" and re-enabling it only re-opens a path for replies to arrive.
 set t_u7=
 set ambiwidth=single
 
@@ -155,20 +158,10 @@ let g:airline#extensions#tabline#fnamemod = ':t'
 
 set t_Co=256                   " Enable full-color support
 
-" DO NOT set termguicolors here without reading this first.
-"
-" It was tried and reverted: turning it on made vim query the terminal (OSC
-" 11, "what is your background colour?"), and the terminal's reply leaked into
-" the buffer as normal-mode keystrokes - pressing G or j would delete lines.
-"
-" This is the same failure mode already documented for t_fe/t_fd and t_u7 in
-" the General Settings section: any terminal reply starts with <esc>, <esc> is
-" mapped in normal mode, so the mapping fires and the rest of the reply runs
-" as commands.
-"
-" To try again, clear the queries too - `set t_RB= t_RF=` - which is safe here
-" because 'background' is set explicitly below rather than detected. Test it
-" on a scratch file first.
+" termguicolors was tried here and reverted, but the reason turned out to be a
+" misdiagnosis: the file corruption blamed on it was really the <esc> mapping
+" in the Key Mappings section, which is now gone. It is probably safe to turn
+" on now. Test it on a scratch file before trusting it.
 
 set background=dark            " Use colors that look good
                                " on a dark background
@@ -245,10 +238,25 @@ nnoremap <leader>bn :bnext<CR>
 nnoremap <leader>bp :bprevious<CR>
 nnoremap <leader>bd :bdelete<CR>
 
-" Clear highlighting on escape in normal mode.
-" Nothing else may start with <esc>, or every esc press stalls for
-" 'timeoutlen' while vim waits to see if a longer mapping follows.
-nnoremap <esc> :noh<return><esc>
+" Clear search highlighting.
+"
+" DO NOT map this to <esc> in normal mode. It was, and it corrupted files.
+"
+" A terminal sends special keys and query replies as escape sequences: a
+" literal <esc> followed by more bytes. Mapping <esc> on its own makes vim
+" match the mapping the moment the <esc> arrives, so the remaining bytes of
+" the sequence are left behind and run as normal-mode commands. Observed:
+"
+"   - vim starting in Replace mode, from the "R" ending a cursor-position
+"     report (this is why t_u7 is cleared in General Settings)
+"   - a "c" left pending as the change operator, so the next key completed
+"     it: j became cj, which replaced two lines with one empty line and
+"     dropped into insert mode, and G became cG
+"   - the first keypress after startup being swallowed
+"
+" Confirmed by testing in GNOME Terminal: identical config with this mapping
+" removed behaves correctly.
+nnoremap <leader>h :nohlsearch<CR>
 
 " edit vimrc {{{
     " [,ve] Open .vimrc in a vertical split, [,vr] reload it
