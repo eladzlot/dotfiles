@@ -6,14 +6,40 @@
 [core]
   autocrlf = input
   editor = vim
-  # insanely beautiful diffs (from paulirish)
-  pager = bash -lc 'diff-highlight | diff-so-fancy | less -r' -
+  # delta replaces the old `bash -lc 'diff-highlight | diff-so-fancy | less -r'`
+  # pager, which spawned a full login shell - re-sourcing bash_profile - on
+  # every single diff.
+  pager = delta
+
+[interactive]
+  diffFilter = delta --color-only
+
+[delta]
+  line-numbers = true
+  # n / N jump between diff sections in the pager
+  navigate = true
 
 # push easily. http://stackoverflow.com/a/23918418/89484
 [push]
   default = current # upstream and simple are not supported on servers :(
   followTags = true
-  
+
+[pull]
+  # replay local commits on top of the remote instead of making a merge
+  # commit every time histories diverge
+  rebase = true
+
+[fetch]
+  # drop remote-tracking branches that no longer exist upstream
+  prune = true
+
+[init]
+  defaultBranch = master
+
+[diff]
+  # handles moved and reindented code better than the default myers
+  algorithm = histogram
+
 [alias]
   co = checkout
   ci = commit
@@ -53,12 +79,6 @@
   added = green
   changed = yellow
   untracked = red
-
-[color "diff-highlight"]
-  oldNormal = "red bold"
-  oldHighlight = "red bold 52"
-  newNormal = "green bold"
-  newHighlight = "green bold 22"
 
 # Any GitHub repo with my username should be checked out r/w by default
 # http://rentzsch.tumblr.com/post/564806957/public-but-hackable-git-submodules
