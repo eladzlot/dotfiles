@@ -23,6 +23,15 @@ set nobackup                   " no backup files
 set nowritebackup              " only in case you don't want a backup file while editing
 set noswapfile                 " no swap files
 
+" Persistent undo: undo history survives closing the file. The directory has
+" existed (gitignored) since long before this was switched on.
+" The trailing // makes vim encode the full path into the undofile name, so
+" same-named files in different directories don't collide.
+if has('persistent_undo')
+    set undodir=~/.vim/undos//
+    set undofile
+endif
+
 set cursorline                 " Highlight the current line
 set encoding=utf-8 nobomb      " Use UTF-8 without BOM
 set nowrap		               " Do not wrap lines
