@@ -50,9 +50,21 @@ PATH=~/.local/share/fnm/aliases/default/bin:$PATH
 PATH=~/.local/bin:$PATH
 PATH=~/bin:$PATH
 
-PATH=/usr/local/texlive/2024/bin/x86_64-linux:$PATH
-MANPATH=/usr/local/texlive/2024/texmf-dist/doc/man:$MANPATH
-INFOPATH=/usr/local/texlive/2024/texmf-dist/doc/info:$INFOPATH
+# TeX Live installs per-year into /usr/local/texlive/<year>/. Glob for it and
+# keep the last match: globs expand in sorted order, so that's the newest year
+# present, and this stops needing an edit every January.
+#
+# The 20* is deliberate - it skips the texmf-local/ directory that sits
+# alongside the year directories. No process is forked, so this costs nothing
+# at shell start. If nothing matches, texlive stays unset.
+for _texlive in /usr/local/texlive/20*/; do :; done
+
+if [ -d "${_texlive}bin/x86_64-linux" ]; then
+    PATH="${_texlive}bin/x86_64-linux:$PATH"
+    MANPATH="${_texlive}texmf-dist/doc/man:$MANPATH"
+    INFOPATH="${_texlive}texmf-dist/doc/info:$INFOPATH"
+fi
+unset _texlive
 
 # Every assignment above is a bare `PATH=`, which only stays exported because
 # the parent shell already exported PATH. nvm.sh used to `export PATH` itself
