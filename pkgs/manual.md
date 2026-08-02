@@ -65,6 +65,18 @@ Node currently still comes from the `bin/nvm` submodule, which is pinned to
 `fnm install 24 && fnm default 24`, then drop the nvm lines from
 `bash_profile` and deinit the submodule.
 
+## R version
+
+This box runs **R 4.1.2** (Ubuntu's own build) even though the marutter PPA
+is configured and offers **4.6.1**. Consequences: some current CRAN packages
+refuse to install - `MuMIn` needs R >= 4.4.
+
+Upgrading is not just `apt install r-base`. R keeps its user library under a
+version-specific path (`~/R/x86_64-pc-linux-gnu-library/4.1`), so a jump to
+4.6 starts from an empty library and all ~260 installed packages need
+reinstalling - several of which compile from source. Worth setting aside
+time for rather than doing incidentally.
+
 ## Non-CRAN R packages
 
 ```r
