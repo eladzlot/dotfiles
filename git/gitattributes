@@ -1,30 +1,18 @@
-# Set default behaviour, in case users don't have core.autocrlf set.
+# Normalize line endings on commit; let git detect what's binary.
 * text=auto
 
-# Explicitly declare text files we want to always be normalized and converted
-# to native line endings on checkout.
-*.css text
-*.js text
-*.html text
-*.php text
-*.jsp text
-
-# Denote all files that are truly binary and should not be modified.
-*.png binary
-*.jpg binary
+# Formats git should never diff or line-ending-convert. Marking them keeps
+# `git diff` from dumping binary noise and keeps text=auto from guessing.
+*.png  binary
+*.jpg  binary
 *.jpeg binary
+*.pdf  binary
+*.doc  binary
+*.docx binary
+*.rtf  binary
+*.odt  binary
 
-# Standard to msysgit
-*.doc diff=astextplain
-*.DOC diff=astextplain
-*.docx diff=astextplain
-*.DOCX diff=astextplain
-*.dot diff=astextplain
-*.DOT diff=astextplain
-*.pdf diff=astextplain
-*.PDF diff=astextplain
-*.rtf diff=astextplain
-*.RTF diff=astextplain
-
-./*.sublime-project -diff
-./*.sublime-workspace -diff
+# NOTE: the msysgit `diff=astextplain` lines that used to be here referenced a
+# diff driver that only Git for Windows defines - on Linux git silently fell
+# back to the default. The `./*.sublime-*` entries were dead too: gitattributes
+# patterns don't take a leading ./, so they matched nothing.

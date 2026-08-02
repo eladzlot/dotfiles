@@ -23,13 +23,9 @@ Thumbs.db
 *.esproj
 nbproject
 
-# Sublime
-*.sublime-project
-*.sublime-workspace
-
-# Komodo
-*.komodoproject
-.komodotools
-
 # Folders to ignore
 node_modules
+
+# Per-machine Claude Code permission grants - the shared settings.json is
+# tracked (see claude/), but the .local.json is session-specific noise.
+**/.claude/settings.local.json
