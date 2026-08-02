@@ -1,0 +1,33 @@
+# R packages, one per line. Comments and blank lines ignored.
+# Install with ../install.sh --R
+#
+# Only packages actually loaded with library() across ~/projects - their
+# dependencies come along automatically. Packages that ship with R itself
+# (MASS, nlme, ...) are deliberately absent.
+
+tidyverse               # also pulls dplyr, ggplot2, tidyr, readr, purrr,
+                        # stringr, lubridate, forcats, readxl, magrittr
+here
+knitr
+kableExtra
+papaja
+
+# modelling
+lme4
+brms
+MuMIn
+psych
+faux
+dagitty
+
+# plotting / reporting
+sjPlot
+ggridges
+ellipse
+consort
+
+beepr
+
+# --- not on CRAN, install by hand (see manual.md) ---
+# rethinking    remotes::install_github("rmcelreath/rethinking")
+# cmdstanr      install.packages("cmdstanr", repos = c("https://stan-dev.r-universe.dev"))

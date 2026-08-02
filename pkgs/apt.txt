@@ -1,0 +1,49 @@
+#
+# Only things installed deliberately belong here - not their dependencies,
+# and not what Pop ships by default.
+
+# --- shell / terminal ---
+ripgrep
+fzf
+bat                     # binary is `batcat` on Debian/Ubuntu, not `bat`
+p7zip-full              # provides 7z, used by bin/lab-zip.sh
+xclip
+
+# --- editors / dev ---
+vim-gtk3                # gtk3 build: system clipboard support
+build-essential
+python3-pip
+gh
+code                    # needs the vscode repo, see manual.md
+
+# --- documents ---
+pandoc
+ghostscript             # provides gs, used by bin/mergepdf
+poppler-utils           # provides pdftoppm, used by bin/convert_tikz.sh
+inkscape
+
+# --- R ---
+# R itself comes from the marutter/rrutter4.0 PPA, see manual.md
+r-base
+r-base-dev
+# headers needed to build common R packages from source
+libcurl4-openssl-dev
+libssl-dev
+libxml2-dev
+libgit2-dev
+libfontconfig1-dev
+
+# --- desktop ---
+vlc
+mpv
+flameshot
+kazam
+kdeconnect
+google-chrome-stable    # needs the google-chrome repo, see manual.md
+
+# --- printing ---
+cups
+printer-driver-brlaser
+
+# --- serving files locally (bin/serve, ~/www) ---
+apache2

@@ -1,5 +1,27 @@
 #!/bin/bash
 
+# apt install, and record it in the dotfiles manifest.
+# The record only stays true if installing and recording are the same action -
+# so use this instead of `apt install`. See pkgs/manual.md for everything that
+# doesn't come from apt.
+apti() {
+    local manifest=~/projects/dotfiles/pkgs/apt.txt
+    local pkg
+
+    sudo apt install "$@" || return
+
+    # Append only what isn't already listed. Deliberately not sorted - the
+    # manifest is grouped and commented by hand, so new entries land at the
+    # end for you to file under the right heading.
+    for pkg in "$@"; do
+        if sed -e 's/#.*//' -e 's/[[:space:]]//g' "$manifest" | grep -qx "$pkg"; then
+            continue
+        fi
+        printf '%s\n' "$pkg" >> "$manifest"
+        printf 'recorded %s in %s\n' "$pkg" "$manifest"
+    done
+}
+
 # find shorthand
 function f() {
     find . -name "$1" 2>&1 | grep -v 'Permission denied'
