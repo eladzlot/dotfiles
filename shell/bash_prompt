@@ -113,6 +113,15 @@ function prompt_command() {
   [[ "${prompt_stack[0]}" == "prompt_command" ]] && exit_code=0
   prompt_stack=()
 
+  # Append this shell's new history lines to the history file after every
+  # command, so a new shell sees the history of all previous ones instead of
+  # only the last window closed.
+  #
+  # This lives here rather than in bash_exports because PROMPT_COMMAND is
+  # assigned (not appended to) at the bottom of this file, which is sourced
+  # after bash_exports - setting it there gets silently overwritten.
+  history -a
+
   # Manually load z here, after $? is checked, to keep $? from being clobbered.
   [[ "$(type -t _z)" ]] && _z --add "$(pwd -P 2>/dev/null)" 2>/dev/null
 

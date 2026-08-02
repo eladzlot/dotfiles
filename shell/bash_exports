@@ -27,9 +27,9 @@ export HISTSIZE=10000
 # https://github.com/nodejs/node/blob/a85f4b5ce5791caf8caa9b31970313c6183a5499/doc/api/repl.markdown#persistent-history
 export NODE_REPL_HISTORY_SIZE=10000
 
-# Make new shells get the history lines from all previous
-# shells instead of the default "last window closed" history
-export PROMPT_COMMAND="history -a; $PROMPT_COMMAND"
+# NOTE: `history -a` used to be set here via PROMPT_COMMAND, but bash_prompt
+# is sourced later and assigns PROMPT_COMMAND outright, so it never ran.
+# It now lives in prompt_command() in bash_prompt.
 
 # Prefer US English and use UTF-8 encoding
 export LANG='en_US'
