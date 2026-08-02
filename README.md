@@ -1,58 +1,90 @@
-## [Elad's](https://github.com/eladzlot) dotfiles
+# Dotfiles
 
-These are the base dotfiles that I start with when I set up a
-new environment. For anything machine-specific I use `.local` files
-(`~/.bash.local`, `~/.gitconfig.local`), which are sourced if present
-and are not under version control.
+These files are the configuration for a Linux computer.
+They contain the configuration for bash, git, vim and Claude Code.
+They also contain a record of the installed software.
 
-These are heavily based on [Cătălin’s dotfiles](https://github.com/alrra/dotfiles).
+## Installation
 
-## Setup
+1. Install git.
+2. Get the files:
 
-To setup the dotfiles just run the appropriate snippet in the
-terminal:
+   ```bash
+   git clone git@github.com:eladzlot/dotfiles.git ~/projects/dotfiles
+   ```
 
-(:warning: **DO NOT** run the setup snippet if you don't fully
-understand [what it does](dotfiles). Seriously, **DON'T**!)
+3. Go to the new directory:
 
-```bash
-bash -c "$(curl -LsS https://raw.githubusercontent.com/eladzlot/dotfiles/master/dotfiles)"
-```
+   ```bash
+   cd ~/projects/dotfiles
+   ```
 
-That's it! :sparkles:
+4. Start the installation:
 
-The setup process will:
+   ```bash
+   make all
+   ```
 
-* Download the dotfiles on your computer (by default it will suggest
-  `~/projects/dotfiles`)
-* [Symlink](os/create_symbolic_links.sh) the
-  [git](git),
-  [shell](shell), and
-  [vim](vim) files
-* Install [vim plugins](vim/vim/plugins)
+The `make all` command makes the symbolic links, installs the vim plugins,
+and installs the software.
 
-## Update
+## Commands
 
-To update the dotfiles you can either run the [`dotfiles`
-script](dotfiles) or, if you want to just update one particular part,
-run the appropriate [`os` script](os).
+| Command | Result |
+|:---|:---|
+| `make` | Shows the list of commands. |
+| `make all` | Does the three steps below. |
+| `make link` | Makes the symbolic links only. |
+| `make vim` | Installs the vim plugins only. |
+| `make pkgs` | Installs the missing software only. |
+| `make audit` | Shows the missing software. Changes nothing. |
 
-## Installed tools
+## Symbolic links
 
-[`pkgs/`](pkgs) records what is installed on the machine, and
-[`install.sh`](install.sh) reconciles the machine with it. Both are safe to
-re-run - they only ever install what is missing.
+The `make link` command makes symbolic links in your home directory.
+Each link points to a file in this repository.
+Thus you edit the files here, and the changes are immediate.
 
-```bash
-./install.sh --audit   # what's recorded but not installed?
-./install.sh           # install missing apt packages
-./install.sh --R       # install missing R packages (slow)
-```
+Most links go to `~/.<name>`.
+Some links go to a different location, because the program reads a different
+path. For example, git reads `~/.config/git/ignore`.
+The file `os/create_symbolic_links.sh` contains the two lists.
 
-Add apt packages with the `apti` shell function rather than `apt install`,
-so installing and recording stay the same action. Anything that doesn't come
-from apt - TeX Live, Zotero, RStudio, the apt repos themselves - is written
-down in [`pkgs/manual.md`](pkgs/manual.md).
+## Software record
+
+The `pkgs` directory contains a record of the installed software:
+
+| File | Content |
+|:---|:---|
+| `pkgs/apt.txt` | The apt packages. |
+| `pkgs/R.txt` | The R packages. |
+| `pkgs/manual.md` | The software that you must install manually. |
+
+The `install.sh` script reads these files.
+It installs only the missing software.
+Thus it is safe to start the script again at any time.
+
+To add an apt package, use the `apti` command in place of `apt install`.
+The `apti` command installs the package and adds it to `pkgs/apt.txt`.
+This keeps the record correct.
+
+Some software is not in the apt repositories.
+The `install.sh` script gets `fnm`, `zoxide` and `delta` from GitHub.
+It puts them in `~/.local/bin`.
+
+Read `pkgs/manual.md` for the software that needs your attention.
+This includes TeX Live, Zotero and RStudio.
+
+## Configuration for one computer
+
+Two files contain the configuration that applies to one computer only.
+Git does not record these files:
+
+- `~/.bash.local`
+- `~/.gitconfig.local`
+
+Make these files if you need them.
+The bash and git configuration read them automatically.
 
 ## License
 
