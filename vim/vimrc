@@ -45,11 +45,19 @@ set ignorecase                 " Ignore case in search patterns
 set incsearch                  " Highlight search pattern as
                                " it is being typed
 
-set clipboard=unnamed          " ┐
-                               " │ Use the system clipboard
-if has('unnamedplus')          " │ as the default register
-    set clipboard+=unnamedplus " │
-endif                          " ┘
+" Use the system clipboard as the default register.
+"
+" unnamedplus only: that's the + register, X CLIPBOARD, what ctrl-c/ctrl-v
+" use. Deliberately NOT 'unnamed', which is the * register - X PRIMARY, the
+" select-with-the-mouse / middle-click-to-paste buffer. With unnamed set,
+" every yank *and every delete* in vim overwrites whatever you last selected
+" with the mouse. The two registers are the same clipboard on macOS, which is
+" where that setting came from.
+if has('unnamedplus')
+    set clipboard=unnamedplus
+else
+    set clipboard=unnamed
+endif
 
 set mousehide                  " Hide mouse pointer while typing
 
@@ -145,13 +153,23 @@ let g:airline#extensions#tabline#fnamemod = ':t'
 " | Color Scheme                                                       |
 " ----------------------------------------------------------------------
 
-set t_Co=256                   " Enable full-color support
+" Prefer 24-bit colour so molokai renders its real palette rather than a
+" 256-colour approximation of it. Guarded on $COLORTERM: a terminal that
+" doesn't advertise truecolor (an older remote box over ssh, say) would
+" otherwise get RGB escapes it can't interpret, so fall back to 256 there.
+if has('termguicolors') && ($COLORTERM ==# 'truecolor' || $COLORTERM ==# '24bit')
+    set termguicolors
+else
+    set t_Co=256
+endif
 
 set background=dark            " Use colors that look good
                                " on a dark background
 
 " these are read by the colorscheme, so they must be set before it loads
 let g:molokai_original = 0
+" only matters on the 256-colour fallback path above; ignored under
+" termguicolors, where molokai uses its exact gui colours
 let g:rehash256 = 1
 
 colorscheme molokai            " Use custom color scheme
