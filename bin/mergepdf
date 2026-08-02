@@ -1,3 +1,16 @@
-#bin/bash
+#!/usr/bin/env bash
+#
+# Merge every PDF in a directory into one file.
+#
+# Usage: mergepdf <directory> <output.pdf>
 
-gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/default -dNOPAUSE -dBATCH -dDetectDuplicateImages -dCompressFonts=true -r150 -sOutputFile=$2 "$1"/*.pdf
+set -euo pipefail
+
+if [ $# -ne 2 ]; then
+    printf 'Usage: %s <directory> <output.pdf>\n' "$(basename "$0")" >&2
+    exit 1
+fi
+
+gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/default \
+   -dNOPAUSE -dBATCH -dDetectDuplicateImages -dCompressFonts=true -r150 \
+   -sOutputFile="$2" "$1"/*.pdf

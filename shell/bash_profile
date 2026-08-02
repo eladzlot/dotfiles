@@ -32,12 +32,14 @@ unset -f source_bash_files
 # Use dotfiles specific executibles
 PATH=~/projects/dotfiles/bin:$PATH
 
-# Use locally-installed npm executables.
+# NOTE: two npm entries used to live here and both are gone.
 #
-# NOTE: ./node_modules/.bin was deliberately removed - a relative directory on
-# PATH means every directory you cd into can shadow your commands with its own
-# binaries. Use `npx <cmd>` to run a project-local tool instead.
-PATH=~/npm/bin:$PATH
+# ./node_modules/.bin was a relative directory on PATH, which let every
+# directory you cd into shadow your commands with its own binaries. Use
+# `npx <cmd>` for a project-local tool instead.
+#
+# ~/npm/bin was an npm --prefix location that no longer exists; global npm
+# packages now land under the fnm-managed node below.
 
 # Node, via fnm (installed by install.sh into ~/.local/bin).
 #
