@@ -31,9 +31,15 @@ export NODE_REPL_HISTORY_SIZE=10000
 # is sourced later and assigns PROMPT_COMMAND outright, so it never ran.
 # It now lives in prompt_command() in bash_prompt.
 
-# Prefer US English and use UTF-8 encoding
-export LANG='en_US'
-export LC_ALL='en_US.UTF-8'
+# Prefer US English and use UTF-8 encoding.
+#
+# LANG is the fallback for every LC_* category, so it carries the charset.
+# LC_ALL is deliberately NOT set: it outranks every individual category and
+# can't be selectively overridden, which is why it's meant for one-off use
+# (`LC_ALL=C sort`) rather than a profile. It also used to paper over LANG
+# being 'en_US' here - a locale this system doesn't even generate - so
+# anything that cleared LC_ALL dropped the shell to non-UTF-8.
+export LANG='en_US.UTF-8'
 
 # highlighting inside manpages and elsewhere
 # https://www.gnu.org/software/termutils/manual/termutils-2.0/html_chapter/tput_1.html
