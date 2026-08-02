@@ -153,15 +153,22 @@ let g:airline#extensions#tabline#fnamemod = ':t'
 " | Color Scheme                                                       |
 " ----------------------------------------------------------------------
 
-" Prefer 24-bit colour so molokai renders its real palette rather than a
-" 256-colour approximation of it. Guarded on $COLORTERM: a terminal that
-" doesn't advertise truecolor (an older remote box over ssh, say) would
-" otherwise get RGB escapes it can't interpret, so fall back to 256 there.
-if has('termguicolors') && ($COLORTERM ==# 'truecolor' || $COLORTERM ==# '24bit')
-    set termguicolors
-else
-    set t_Co=256
-endif
+set t_Co=256                   " Enable full-color support
+
+" DO NOT set termguicolors here without reading this first.
+"
+" It was tried and reverted: turning it on made vim query the terminal (OSC
+" 11, "what is your background colour?"), and the terminal's reply leaked into
+" the buffer as normal-mode keystrokes - pressing G or j would delete lines.
+"
+" This is the same failure mode already documented for t_fe/t_fd and t_u7 in
+" the General Settings section: any terminal reply starts with <esc>, <esc> is
+" mapped in normal mode, so the mapping fires and the rest of the reply runs
+" as commands.
+"
+" To try again, clear the queries too - `set t_RB= t_RF=` - which is safe here
+" because 'background' is set explicitly below rather than detected. Test it
+" on a scratch file first.
 
 set background=dark            " Use colors that look good
                                " on a dark background
