@@ -1,8 +1,9 @@
 ## [Elad's](https://github.com/eladzlot) dotfiles
 
 These are the base dotfiles that I start with when I set up a
-new environment. For more specific local needs I use the `.local`
-files described in the [`Local Settings`](#local-settings) section.
+new environment. For anything machine-specific I use `.local` files
+(`~/.bash.local`, `~/.gitconfig.local`), which are sourced if present
+and are not under version control.
 
 These are heavily based on [Cătălin’s dotfiles](https://github.com/alrra/dotfiles).
 
@@ -14,10 +15,9 @@ terminal:
 (:warning: **DO NOT** run the setup snippet if you don't fully
 understand [what it does](dotfiles). Seriously, **DON'T**!)
 
-| OS | Snippet |
-|:---:|:---|
-| OS X | `bash -c "$(curl -LsS https://raw.github.com/eladzlot/dotfiles/master/dotfiles)"` |
-| Ubuntu | `bash -c "$(wget -qO - https://raw.github.com/eladzlot/dotfiles/master/dotfiles)"` |
+```bash
+bash -c "$(curl -LsS https://raw.githubusercontent.com/eladzlot/dotfiles/master/dotfiles)"
+```
 
 That's it! :sparkles:
 
@@ -25,7 +25,6 @@ The setup process will:
 
 * Download the dotfiles on your computer (by default it will suggest
   `~/projects/dotfiles`)
-* Create some additional [directories](os/create_directories.sh)
 * [Symlink](os/create_symbolic_links.sh) the
   [git](git),
   [shell](shell), and
@@ -37,6 +36,23 @@ The setup process will:
 To update the dotfiles you can either run the [`dotfiles`
 script](dotfiles) or, if you want to just update one particular part,
 run the appropriate [`os` script](os).
+
+## Installed tools
+
+[`pkgs/`](pkgs) records what is installed on the machine, and
+[`install.sh`](install.sh) reconciles the machine with it. Both are safe to
+re-run - they only ever install what is missing.
+
+```bash
+./install.sh --audit   # what's recorded but not installed?
+./install.sh           # install missing apt packages
+./install.sh --R       # install missing R packages (slow)
+```
+
+Add apt packages with the `apti` shell function rather than `apt install`,
+so installing and recording stay the same action. Anything that doesn't come
+from apt - TeX Live, Zotero, RStudio, the apt repos themselves - is written
+down in [`pkgs/manual.md`](pkgs/manual.md).
 
 ## License
 

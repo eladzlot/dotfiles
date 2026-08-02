@@ -26,16 +26,7 @@ set_github_ssh_key() {
         ssh-keygen -t rsa -C "$(get_answer)"
     fi
 
-    if cmd_exists 'open' && cmd_exists 'pbcopy'; then
-
-        # Copy SSH key to clipboard
-        cat "$sshKeyFile" | pbcopy
-        print_result $? "Copy SSH key to clipboard"
-
-        # Open the GitHub web page where the SSH key can be added
-        open "$GITHUB_SSH_URL"
-
-    elif cmd_exists 'xclip' && cmd_exists 'xdg-open'; then
+    if cmd_exists 'xclip' && cmd_exists 'xdg-open'; then
 
         # Copy SSH key to clipboard
         cat "$sshKeyFile" | xclip -selection clip

@@ -15,14 +15,11 @@ declare -a FILES_TO_SYMLINK=(
     'shell/bashrc'
     'shell/curlrc'
     'shell/inputrc'
-    'shell/screenrc'
     'shell/dircolors'
 
     'git/gitattributes'
     'git/gitconfig'
     'git/gitignore'
-    
-    'dev/eslint.json'
 
     'vim/vim'
     'vim/vimrc'

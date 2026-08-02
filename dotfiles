@@ -197,17 +197,6 @@ main() {
 
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    print_info 'Create directories'
-
-    ask_for_confirmation 'Do you want the additional directories to be created?'
-    printf '\n'
-
-    if answer_is_yes; then
-        ./os/create_directories.sh
-    fi
-
-    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
     print_info 'Create symbolic links'
     ./os/create_symbolic_links.sh
 
@@ -246,17 +235,6 @@ main() {
             ./os/install_vim_plugins.sh
         fi
 
-    fi
-
-    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    print_info 'Restart'
-
-    ask_for_confirmation 'Do you want to restart?'
-    printf '\n'
-
-    if answer_is_yes; then
-        ./os/restart.sh
     fi
 
 }

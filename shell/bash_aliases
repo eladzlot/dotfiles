@@ -1,9 +1,8 @@
 #!/bin/bash
 
-declare DOTFILES_DIR_PATH="$(dirname $(dirname $(readlink $BASH_SOURCE)))"
-
-source "$DOTFILES_DIR_PATH/os/utils.sh" \
-    && declare OS="$(get_os)"
+# NOTE: this file used to source os/utils.sh to get get_os(), whose result was
+# never used. Sourcing it leaked the whole installer toolkit (mkd, execute,
+# ask, print_*, ...) into every interactive shell.
 
 # ----------------------------------------------------------------------
 
@@ -35,22 +34,11 @@ alias ip='dig +short myip.opendns.com @resolver1.opendns.com'
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 ## Paul Irish ls stuff
-
-###
-# time to upgrade `ls`
-
-# use coreutils `ls` if possible…
-hash gls >/dev/null 2>&1 || alias gls="ls"
-
-# always use color, even when piping (to awk,grep,etc)
-if gls --color > /dev/null 2>&1; then colorflag="--color"; else colorflag="-G"; fi;
-export CLICOLOR_FORCE=1
+## (the coreutils `gls` fallback and CLICOLOR_FORCE were macOS-only and are gone)
 
 # ls options: A = include hidden (but not . or ..), F = put `/` after folders, h = byte unit suffixes
-alias ls='gls -AFh ${colorflag} --group-directories-first'
-alias lsd='ls -l | grep "^d"' # only directories
-#    `la` defined in .functions
-###
+# --color=auto so piping to awk/grep below doesn't get escape codes
+alias ls='ls -AFh --color=auto --group-directories-first'
 
 # List ALL files (colorized() in long format, show permissions in octal
 alias la="ls -l | awk '
@@ -70,14 +58,4 @@ alias lsd='ls -l | grep "^d"'
 
 # # here's LS_COLORS
 # # github.com/trapd00r/LS_COLORS
-if command -v gdircolors >/dev/null 2>&1; then
-    eval "$(gdircolors -b ~/.dircolors)"
-else
-    eval "$(dircolors -b ~/.dircolors)"
-fi
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-# Cleanup
-
-unset DOTFILES_DIR_PATH
-unset OS
+eval "$(dircolors -b ~/.dircolors)"
