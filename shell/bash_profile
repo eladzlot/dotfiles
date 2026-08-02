@@ -39,8 +39,6 @@ PATH=~/projects/dotfiles/bin:$PATH
 # binaries. Use `npx <cmd>` to run a project-local tool instead.
 PATH=~/npm/bin:$PATH
 
-source ~/projects/dotfiles/bin/z/z.sh
-
 # Node, via fnm (installed by install.sh into ~/.local/bin).
 #
 # Deliberately NOT `eval "$(fnm env)"`: that runs fnm on every shell start.
@@ -60,6 +58,13 @@ INFOPATH=/usr/local/texlive/2024/texmf-dist/doc/info:$INFOPATH
 # the parent shell already exported PATH. nvm.sh used to `export PATH` itself
 # and quietly covered for that; with nvm gone, say it explicitly.
 export PATH MANPATH INFOPATH
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# zoxide (installed by install.sh into ~/.local/bin, so this has to come
+# after PATH is set). `z <partial-path>` jumps by frecency - same muscle
+# memory as the z.sh it replaces, and the old ~/.z database was imported.
+eval "$(zoxide init bash)"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
