@@ -1,9 +1,77 @@
-" todo.vim - the functions behind todo.md's date colouring.
+" todo.vim - the functions behind the todo.md mappings and date colouring.
 "
-" Called from ftplugin/todo.vim; the format they assume is described at the
-" top of syntax/todo.vim.
+" Mapped in ftplugin/todo.vim; the format they assume is described at the top
+" of syntax/todo.vim.
+
+" A bullet line, with the checkbox optional: indent, marker, box.
+let s:bullet = '^\(\s*\)\([-*+]\)\s\+\(\[[ xX]\]\)\='
+
+" A task line: a bullet line that does have a checkbox.
+let s:task = '^\s*[-*+]\s\+\[[ xX]\]'
 
 let s:due = '@due(\d\{4}-\d\d-\d\d)'
+
+" Open a new task below the cursor and start typing it.
+"
+" Next to another task the new one is a sibling; under a section heading it
+" belongs one level in, which is where you want it after typing the heading.
+function! todo#NewTask() abort
+    let parts = matchlist(getline('.'), s:bullet)
+    if empty(parts)
+        let indent = matchstr(getline('.'), '^\s*')
+        let bullet = '*'
+    else
+        let indent = parts[1]
+        let bullet = parts[2]
+        if parts[3] ==# ''
+            let indent .= repeat(' ', &shiftwidth)
+        endif
+    endif
+
+    call append(line('.'), indent . bullet . ' [ ] ')
+    call cursor(line('.') + 1, 1)
+    startinsert!
+endfunction
+
+" Flip [ ] and [x] on the current line.
+function! todo#ToggleDone() abort
+    let line = getline('.')
+    if line !~# s:task
+        return
+    endif
+    if line =~# '^\s*[-*+]\s\+\[ \]'
+        call setline('.', substitute(line, '\[ \]', '[x]', ''))
+    else
+        call setline('.', substitute(line, '\[[xX]\]', '[ ]', ''))
+    endif
+    call todo#Refresh()
+endfunction
+
+" Set or replace the @due tag on the current line, defaulting to today (or to
+" the date already there, so a nudge by a few days is a small edit).
+function! todo#SetDue() abort
+    let line = getline('.')
+    let current = matchstr(line, '@due(\zs\d\{4}-\d\d-\d\d\ze)')
+    let date = input('Due (YYYY-MM-DD): ', empty(current) ? strftime('%Y-%m-%d') : current)
+    redraw
+
+    if empty(date)
+        return
+    endif
+    if date !~# '^\d\{4}-\d\d-\d\d$'
+        echohl ErrorMsg
+        echomsg 'todo: expected YYYY-MM-DD, got ' . date
+        echohl None
+        return
+    endif
+
+    if empty(current)
+        call setline('.', substitute(line, '\s*$', '', '') . ' @due(' . date . ')')
+    else
+        call setline('.', substitute(line, s:due, '@due(' . date . ')', ''))
+    endif
+    call todo#Refresh()
+endfunction
 
 " Colour @due dates by how they compare with today.
 "

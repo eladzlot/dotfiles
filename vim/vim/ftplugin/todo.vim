@@ -1,4 +1,4 @@
-" Buffer settings for todo.md files.
+" Buffer settings and mappings for todo.md files.
 " Highlighting is in syntax/todo.vim, the functions in autoload/todo.vim.
 
 if exists('b:did_ftplugin')
@@ -12,6 +12,10 @@ let b:did_ftplugin = 1
 setlocal conceallevel=0
 setlocal foldmethod=indent
 setlocal foldlevel=99
+
+nnoremap <buffer> <silent> <leader>n :call todo#NewTask()<CR>
+nnoremap <buffer> <silent> <leader>d :call todo#ToggleDone()<CR>
+nnoremap <buffer>          <leader>u :call todo#SetDue()<CR>
 
 " todo#Refresh() paints with window-local matches, so it has to run again
 " every time the buffer is shown in a window, and be cleared when the window
@@ -27,5 +31,8 @@ augroup END
 call todo#Refresh()
 
 let b:undo_ftplugin = 'setlocal conceallevel< foldmethod< foldlevel<'
+      \ . ' | silent! nunmap <buffer> <leader>n'
+      \ . ' | silent! nunmap <buffer> <leader>d'
+      \ . ' | silent! nunmap <buffer> <leader>u'
       \ . ' | silent! autocmd! todo_refresh * <buffer>'
       \ . ' | call todo#Clear()'
