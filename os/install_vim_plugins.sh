@@ -25,6 +25,15 @@ main() {
         #        the case where there are warnings
     print_result $? 'Install Vim plugins'
 
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+    # Index the hand-written help in ~/.vim/doc, so that `:help todo-md`
+    # works. vim-plug indexes the help of the plugins it installs, but not
+    # this, because it did not install it.
+
+    vim +'helptags ~/.vim/doc' +qall &> /dev/null
+    print_result $? 'Index Vim help tags'
+
 }
 
 main

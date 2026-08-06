@@ -50,6 +50,15 @@ Some links go to a different location, because the program reads a different
 path. For example, git reads `~/.config/git/ignore`.
 The file `os/create_symbolic_links.sh` contains the two lists.
 
+## Todo files
+
+Vim gives its own highlighting to each file with the name `todo.md`.
+It shows the tasks, the tags and the due dates, and it makes a late date red.
+It also adds three keys: `,n` for a new task, `,d` to complete a task,
+and `,u` to set a due date.
+
+For more information, start vim and type `:help todo-md`.
+
 ## Software record
 
 The `pkgs` directory contains a record of the installed software:

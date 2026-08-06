@@ -1,0 +1,166 @@
+*todo-md.txt*  Highlighting and mappings for todo.md outlines
+
+Named todo-md rather than todo so it does not shadow vim's own |todo.txt|,
+which is the list of known bugs in vim itself.
+
+==============================================================================
+CONTENTS                                                    *todo-md-contents*
+
+    1. The format .............................. |todo-md-format|
+    2. Highlighting ............................ |todo-md-highlighting|
+    3. Mappings ................................ |todo-md-mappings|
+    4. How it is wired ......................... |todo-md-files|
+    5. Ideas, not implemented .................. |todo-md-ideas|
+
+Any file named todo.md, or ending in .todo.md, gets filetype "todo". Nothing
+else changes: every other markdown file still belongs to vim-pandoc.
+
+==============================================================================
+1. THE FORMAT                                                 *todo-md-format*
+
+A plain indented outline. Two spaces per level, one bullet per line: >
+
+    * Measurement                     a section: a bullet with no checkbox
+      * lectures @due(2026-09-06)     ...which nest
+        * [ ] Finish lit review       an open task
+        * [x] Book the room           a done task
+        * [ ] Get grant #p1 @waiting for Katie
+<
+The only structural distinction is the checkbox. A bullet with one is a task;
+a bullet without one is a heading for the bullets under it.
+
+Tags are @name, @name(argument), or #name, and can go on any line. Three have
+a meaning:
+
+    @due(YYYY-MM-DD)   when the task is due. The date format is fixed: it is
+                       what makes dates sortable and comparable as plain text.
+    @waiting           the task is blocked. Whatever follows, up to the next
+                       @ or #, is read as a note about what is being waited
+                       on, and is dimmed with the tag.
+    #p1                a priority, or in fact any #tag.
+
+Every other @tag and #tag is highlighted too, just without a special colour.
+Inventing one costs nothing and breaks nothing.
+
+==============================================================================
+2. HIGHLIGHTING                                         *todo-md-highlighting*
+
+    todoSection     a top-level heading, at column 0
+    todoProject     an indented heading
+    todoBox         the [ ] or [x] marker
+    todoDone        a whole finished line, tags and all
+    todoDue         a @due tag
+    todoOverdue     a @due tag whose date is before today
+    todoDueToday    a @due tag whose date is today
+    todoWaiting     a @waiting tag and its note
+    todoPriority    a #tag
+    todoTag         any other @tag
+
+The three states of a due date are meant to read as a ramp: orange for a date
+still ahead, yellow for today, red for late.
+
+Each group is linked to a standard group with |:highlight-default|, so any
+colorscheme gives them something sensible and any of them can be overridden
+in the vimrc without touching the syntax file: >
+
+    highlight link todoPriority ErrorMsg
+<
+todoOverdue and todoDueToday are not syntax groups. "Before today" is not a
+fixed pattern, so it cannot be a syntax rule; todo#Refresh() finds those dates
+and paints them with |matchaddpos()|, which sits above syntax highlighting and
+therefore wins. Those matches belong to the window rather than the buffer, so
+ftplugin/todo.vim re-runs the function whenever the buffer is displayed or
+edited, and clears the matches when the window moves on to another file.
+
+==============================================================================
+3. MAPPINGS                                                 *todo-md-mappings*
+
+All buffer-local, all normal mode, with the leader as set in the vimrc (,).
+
+    <leader>n       Open a new task below the cursor and start typing it.
+                    Next to another task the new one is a sibling; under a
+                    heading it goes one level in, which is where it belongs
+                    just after typing the heading.
+
+    <leader>d       Flip [ ] and [x] on the current line. Does nothing on a
+                    line without a checkbox.
+
+    <leader>u       Set or replace @due on the current line. Prompts, with
+                    today's date filled in, or with the date already on the
+                    line so that moving it by a few days is a small edit.
+                    Anything that is not YYYY-MM-DD is refused.
+
+Folding is by indent, with everything open ('foldlevel' 99), so |zc| closes a
+section and |zR| opens them all again.
+
+==============================================================================
+4. HOW IT IS WIRED                                             *todo-md-files*
+
+    after/ftdetect/todo.vim   filename to filetype
+    syntax/todo.vim           the static highlighting
+    ftplugin/todo.vim         buffer options, mappings, refresh autocmds
+    autoload/todo.vim         the functions behind all of it
+
+This is the layout of a standalone plugin. If it ever outgrows the dotfiles
+repository, the four files plus this one move to their own repository, a Plug
+line goes in the vimrc, and nothing else changes.
+
+The one subtle part is the first file. vim-pandoc claims every *.md for
+filetype=pandoc, and where two autocmds both fire, the one registered last
+wins. ftdetect files are read in 'runtimepath' order and ~/.vim/after is last,
+which is the only reason that file sits under after/. It also has to clear
+b:did_ftplugin, which vim-pandoc sets to suppress markdown's ftplugin and
+which would otherwise suppress this one too. The comments in the file say the
+same thing at more length.
+
+This help file is indexed by `make vim`. After adding a tag to it by hand,
+run: >
+
+    :helptags ~/.vim/doc
+<
+==============================================================================
+5. IDEAS, NOT IMPLEMENTED                                      *todo-md-ideas*
+
+None of this is decided. It is written down so the reasoning does not have to
+be reconstructed later, and so that the shape of the thing stays deliberate.
+
+Agenda~
+    :TodoAgenda, putting every @due line in the location list sorted by date.
+    Probably the most useful next thing: the colours answer "is this late",
+    a list answers "what is next". Roughly ten lines in autoload/todo.vim.
+
+Archiving~
+    A function moving [x] lines to a "* Done" section, or to a separate
+    todo-archive.md. Pairs naturally with stamping @done(YYYY-MM-DD) at the
+    moment <leader>d ticks a task, which would also make the archive worth
+    reading. Open question: whether an archive is wanted at all, or whether
+    finished tasks should simply be deleted.
+
+Date completion~
+    @due( then <c-x><c-o> offering today, tomorrow, next monday. The template
+    already exists in autoload/cite.vim, and fzf is already installed. The
+    question is whether typing eight digits is annoying enough to justify it.
+
+Overdue count~
+    In the statusline or the sign column, reusing the scan todo#Refresh()
+    already does. Only useful if todo.md is open most of the day.
+
+Opening the file~
+    nnoremap <leader>t :e ~/todo.md<CR> in the vimrc: the one piece of this
+    that cannot be filetype-local, because it has to work from anywhere.
+
+Sorting~
+    Sort the tasks under the heading by due date, undated last. Small, and
+    conflicts with keeping the list in a deliberate manual order.
+
+Recurrence~
+    @every(week) respawning a task when ticked. This is where a todo file
+    stops being a text file and starts being an application; probably the
+    line worth not crossing.
+
+Ageing @waiting~
+    @waiting(2026-08-01) growing more insistent in colour the longer it sits.
+    The mechanism is already there - todo#Refresh() compares dates and paints
+    - so this is one more branch in that loop.
+
+ vim:tw=78:ts=8:ft=help:norl:
