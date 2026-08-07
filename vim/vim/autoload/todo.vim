@@ -231,6 +231,18 @@ function! s:panel_open() abort
     setlocal nomodifiable
     let s:panel_buf = bufnr('%')
 
+    " The file's editing keys, in the statusline this window already draws:
+    " the one place that costs neither a row of the panel nor a column of a
+    " task. They are the ones worth naming - <CR> and q explain themselves
+    " once you are in here, but nothing announces that ,u exists.
+    "
+    " Airline would otherwise paint this statusline like every other window,
+    " reporting a file position and a branch that a scratch buffer has not
+    " got. b:airline_disable_statusline is airline's current hook for that;
+    " w:airline_disabled still works but its own source marks it deprecated.
+    let b:airline_disable_statusline = 1
+    let &l:statusline = '%#todoSumStatus# todo: now%=,n new  ,d done  ,u due  ,g in/out '
+
     syntax match todoSumLate  /^late\>/
     syntax match todoSumSoon  /^\%(today\|soon\)\>/
     syntax match todoSumNow   /^now\>/
@@ -243,9 +255,17 @@ function! s:panel_open() abort
     hi def link todoSumNow  todoTag
     hi def link todoSumP1   todoPriority
     hi def link todoSumPath Comment
+    " The statusline draws its whole width in one group, StatusLineNC by
+    " default, which puts a grey slab along the bottom of the screen for the
+    " sake of a few words. Comment carries no background, so the legend sits
+    " quietly on the ordinary one.
+    hi def link todoSumStatus Comment
 
     nnoremap <buffer> <silent> <CR> :call todo#SummaryJump()<CR>
     nnoremap <buffer> <silent> q    :close<CR>
+    " ,g is "go to the list" in the file; in here it is the way back, so the
+    " one key moves the cursor in and out rather than being half a pair.
+    nnoremap <buffer> <silent> <leader>g :wincmd p<CR>
 
     augroup todo_panel
         autocmd! * <buffer>

@@ -115,7 +115,8 @@ lives in the vimrc rather than in ftplugin/todo.vim.
 
     <leader>g       Go to the summary panel, opening it if it is not up.
                     The panel never takes the cursor by itself, so this is
-                    the way in. From there <C-w>p returns, and q closes it.
+                    the way in - and the same key in the panel is the way
+                    back out, so it moves the cursor either direction.
 
     <leader>G       Show or hide the summary panel - see |:TodoSummary|.
 
@@ -166,7 +167,15 @@ section and |zR| opens them all again.
                 In the panel:
 
                     <CR>    jump to that task in the file
+                    <leader>g   back to the file
                     q       close the panel
+
+                Its statusline names the keys that change the file - ,n, ,d
+                and ,u - since those are the ones nothing else announces.
+                It is drawn in the Comment colour rather than the usual
+                statusline one, which would put a grey slab across the
+                bottom of the screen for the sake of a few words. Repoint
+                todoSumStatus to taste.
 
                 The panel never changes what closing the file does. It takes
                 itself down before a |:quit| so that vim sees the window
