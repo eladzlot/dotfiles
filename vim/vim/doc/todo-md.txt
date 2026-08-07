@@ -41,7 +41,11 @@ a meaning:
                        removed again if the task is reopened. It needs no
                        colour of its own: it only ever appears on a finished
                        line, which is dimmed whole.
-    #p1                a priority, or in fact any #tag.
+    @now               the task is one of the few being worked on now. It
+                       highlights as an ordinary tag; what it is really for is
+                       putting the task in |:TodoSummary|.
+    #p1                high priority. Other #tags, #p2 included, are ordinary
+                       tags with no meaning attached.
 
 Every other @tag and #tag is highlighted too, just without a special colour.
 Inventing one costs nothing and breaks nothing.
@@ -55,7 +59,7 @@ Inventing one costs nothing and breaks nothing.
     todoDone        a whole finished line, tags and all
     todoDue         a @due tag
     todoOverdue     a @due tag whose date is before today
-    todoDueSoon     a @due tag due within the next few days, today included
+    todoDueSoon     a @due tag due within |g:todo_soon_days|, today included
     todoWaiting     a @waiting tag and its note
     todoPriority    a #tag
     todoTag         any other @tag
@@ -64,7 +68,11 @@ The three states of a due date are meant to read as a ramp: orange for a date
 still out of reach, yellow once it is close enough to plan around, red for one
 already past.
 
-How far ahead "soon" reaches is g:todo_soon_days, in days, default 3.
+Only the date changes colour. Whole rows were highlighted here at one point -
+bold for @now, and for a deadline close or missed - and it read as clutter:
+bold lines pile up, and molokai draws headings bold already, so weight stopped
+distinguishing anything. Urgency is said once, by the colour of the date, and
+answered properly by |:TodoSummary|.
 
 Each group is linked to a standard group with |:highlight-default|, so any
 colorscheme gives them something sensible and any of them can be overridden
@@ -72,12 +80,13 @@ in the vimrc without touching the syntax file: >
 
     highlight link todoPriority ErrorMsg
 <
-todoOverdue and todoDueSoon are not syntax groups. "Before today" is not a
-fixed pattern, so it cannot be a syntax rule; todo#Refresh() finds those dates
-and paints them with |matchaddpos()|, which sits above syntax highlighting and
-therefore wins. Those matches belong to the window rather than the buffer, so
-ftplugin/todo.vim re-runs the function whenever the buffer is displayed or
-edited, and clears the matches when the window moves on to another file.
+todoOverdue and todoDueSoon are not written in the syntax file, because
+"before today" is not a fixed pattern. todo#Refresh() finds those dates and
+paints them with |matchaddpos()|, which sits above syntax highlighting and so
+wins without any priority juggling. The cost is that matches belong to the
+window rather than the buffer, which is why ftplugin/todo.vim re-runs the
+function whenever the buffer is displayed or edited, and clears the matches
+when the window moves on to another file.
 
 ==============================================================================
 3. MAPPINGS                                                 *todo-md-mappings*
@@ -100,8 +109,105 @@ All buffer-local, all normal mode, with the leader as set in the vimrc (,).
                     line so that moving it by a few days is a small edit.
                     Anything that is not YYYY-MM-DD is refused.
 
+    <leader>g       Go to the summary panel, opening it if it is not up.
+                    The panel never takes the cursor by itself, so this is
+                    the way in. From there <C-w>p returns, and q closes it.
+
+    <leader>G       Show or hide the summary panel - see |:TodoSummary|.
+
 Folding is by indent, with everything open ('foldlevel' 99), so |zc| closes a
 section and |zR| opens them all again.
+
+                                                                *:TodoSummary*
+:TodoSummary    Show every task worth doing now in a small window under the
+                file, and leave the cursor where it was. Opens by itself
+                whenever a todo file is displayed, and closes with it.
+
+                There are five ways to qualify, and a task is listed under
+                the first that applies to it:
+
+                    now     tagged @now
+                    late    the @due date is before today
+                    today   the @due date is today
+                    p1      tagged #p1
+                    soon    the @due date is inside the next few days
+
+                @now wins outright, over a missed deadline included. It is
+                the only rule here that is a decision; the rest are
+                inferences from a date, and a decision beats an inference.
+
+                Entries are sorted in that order, then by date, so the list
+                reads from the most overdue thing down to the merely
+                approaching. Each carries the headings it sits under, since
+                "Get grant" on its own could be anything: >
+
+    late  Measurement > research | Measurement review paper @due(2026-08-05)
+    now   WET | Upgrade Slides @now
+    p1    Shipuzim | Figure out door lock #p1
+<
+                A @waiting task is left out. It is blocked on somebody else,
+                so listing it among things to do only teaches you to skip
+                lines. Two things override that: once it is late, chasing it
+                is precisely the thing to do, and if you have tagged it @now
+                then you have already decided.
+
+                The panel is there to be glanced at while you work in the
+                file, which is why it never takes the cursor. An fzf picker
+                over the same list was tried and removed: fzf is modal, so
+                while it is up it owns the keyboard, and it can only answer
+                "which one of these" before disappearing again. That turned
+                out to be a question worth asking far less often than "what
+                is on today".
+
+                In the panel:
+
+                    <CR>    jump to that task in the file
+                    q       close the panel
+
+                The panel never changes what closing the file does. It takes
+                itself down before a |:quit| so that vim sees the window
+                layout it would have seen had the panel never existed, and if
+                it is ever left as the only window - after |:bdelete|, say -
+                it hands the window to another buffer rather than deciding on
+                its own that vim is finished. Only with nothing else open at
+                all does it quit.
+
+                Note that :q on the last window quits vim whether or not
+                other buffers are loaded. That is vim, not this: |:bdelete|
+                is the one that puts a file away and leaves you where you
+                were.
+
+                It rebuilds itself as the file changes, so ticking a task off
+                takes it out of the list. That happens on a zero-delay timer
+                rather than immediately: building the panel means creating a
+                window and stepping back out of one, and doing that from
+                inside the event that triggered it puts the cursor in the
+                wrong place at startup. The timer also coalesces a burst of
+                edits into one rebuild.
+
+                                                             *g:todo_summary*
+                Set to 0 to stop the panel opening by itself. |:TodoSummary|
+                still works. >
+
+                    let g:todo_summary = 0
+<
+                                                      *g:todo_summary_height*
+                The most lines the panel will take. Default 8; a shorter list
+                gets a shorter window. >
+
+                    let g:todo_summary_height = 12
+<
+
+                                                          *g:todo_soon_days*
+                How far ahead "soon" reaches, in days. Default 3.
+
+                It governs both the colouring and this list, deliberately: a
+                date the file draws as approaching is a date the picker
+                gathers, and there is only one idea of soon to hold in your
+                head. >
+
+                    let g:todo_soon_days = 7
+<
 
 ==============================================================================
 4. HOW IT IS WIRED                                             *todo-md-files*
@@ -134,10 +240,11 @@ run: >
 None of this is decided. It is written down so the reasoning does not have to
 be reconstructed later, and so that the shape of the thing stays deliberate.
 
-Agenda~
-    :TodoAgenda, putting every @due line in the location list sorted by date.
-    Probably the most useful next thing: the colours answer "is this late",
-    a list answers "what is next". Roughly ten lines in autoload/todo.vim.
+A longer horizon~
+    |:TodoSummary| answers "what today"; nothing answers "what this month".
+    The same loop with the near-date rules dropped would list every dated
+    task in order. Unclear whether that is a second command, an argument to
+    the existing one, or a thing best done by reading the file.
 
 Archiving~
     A function moving [x] lines to a "* Done" section, or to a separate

@@ -47,6 +47,11 @@ hi def link todoWaiting  Special
 hi def link todoPriority Constant
 hi def link todoTag      PreProc
 
+" Whole rows were bolded here once - for @now, and for a deadline close or
+" missed. It read as clutter: bold lines pile up, and molokai already draws
+" headings bold, so weight stopped meaning anything. What is urgent is said by
+" the colour of the date, and by what :TodoSummary gathers.
+
 " Not syntax groups: todo#Refresh() paints these over @due dates with
 " matchaddpos(). Defined here so the colours all live in one place.
 "

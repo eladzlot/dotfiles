@@ -37,9 +37,9 @@ endfunction
 " Flip [ ] and [x] on the current line, stamping @done with today's date.
 "
 " The stamp is what makes a finished task worth keeping rather than deleting:
-" without a date, a pile of done tasks answers no question. Any stamp already
-" on the line goes first, so ticking rewrites it rather than accumulating
-" stamps, and unticking leaves nothing behind to mislead.
+" without a date, an archive of done tasks answers no question. Any stamp
+" already on the line goes first, so ticking rewrites it rather than
+" accumulating stamps, and unticking leaves nothing to mislead.
 function! todo#ToggleDone() abort
     let line = getline('.')
     if line !~# s:task
@@ -56,6 +56,7 @@ function! todo#ToggleDone() abort
 
     call setline('.', line)
     call todo#Refresh()
+    call todo#SummarySoon()
 endfunction
 
 " Set or replace the @due tag on the current line, defaulting to today (or to
@@ -82,15 +83,348 @@ function! todo#SetDue() abort
         call setline('.', substitute(line, s:due, '@due(' . date . ')', ''))
     endif
     call todo#Refresh()
+    call todo#SummarySoon()
 endfunction
 
 " The last date that still counts as soon.
 "
-" Walking today's date forward is the whole reason any of this needs code:
-" "within three days" cannot be written as a pattern, but the comparison
-" afterwards is an ordinary string compare, because ISO dates sort as text.
+" One notion of soon, shared by the colouring and by the summary, so that what
+" the file shows as approaching is exactly what the picker gathers. Walking
+" today's date forward is the whole reason any of this needs code: "within
+" three days" cannot be written as a pattern, but the comparison afterwards
+" is an ordinary string compare, because ISO dates sort as text.
 function! s:soon() abort
     return strftime('%Y-%m-%d', localtime() + get(g:, 'todo_soon_days', 3) * 86400)
+endfunction
+
+" The task text alone: no indent, no bullet, no checkbox.
+function! s:text(line) abort
+    return substitute(a:line, '^\s*[-*+]\s\+\%(\[[ xX]\]\s*\)\=', '', '')
+endfunction
+
+" A heading as it reads in a list: its text without its own tags. A heading's
+" @due says something about the project, not about the task underneath it.
+function! s:heading(line) abort
+    let text = substitute(s:text(a:line), '\s*\%(@\w\+\%((.\{-})\)\=\|#\w\+\)', '', 'g')
+    return substitute(text, '^\s*\|\s*$', '', 'g')
+endfunction
+
+" The headings a task sits under, as "Measurement > research". A flat list of
+" task text loses exactly what the outline was written for.
+function! s:path(trail, indent) abort
+    let keys = filter(keys(a:trail), 'str2nr(v:val) < a:indent')
+    call sort(keys, {a, b -> str2nr(a) - str2nr(b)})
+    return join(filter(map(keys, 'a:trail[v:val]'), '!empty(v:val)'), ' > ')
+endfunction
+
+" Everything worth doing now, in the order it is worth doing, as a list of
+" {lnum, bucket, text}.
+"
+" Five ways to qualify, strongest first: overdue, due today, tagged @now,
+" tagged #p1, or due inside the next g:todo_soon_days.
+"
+" A @waiting task is left out unless it is already late. It is blocked on
+" somebody else, so listing it among things to do teaches you to skip lines;
+" but once it is late, chasing it is the thing to do.
+"
+" Only the date rules need code at all - :lvimgrep would cover @now and #p1.
+" "Due soon" cannot be a pattern, so today's date walks forward by however
+" many days and the comparison stays an ordinary string compare.
+function! s:gather() abort
+    let today = strftime('%Y-%m-%d')
+    let soon = s:soon()
+    let order = {'now': 0, 'late': 1, 'today': 2, 'p1': 3, 'soon': 4}
+
+    let found = []
+    let trail = {}
+    let lnum = 0
+    for line in getline(1, '$')
+        let lnum += 1
+        if line !~# s:bullet
+            continue
+        endif
+        let indent = strdisplaywidth(matchstr(line, '^\s*'))
+
+        " A heading: it is the context for whatever nests under it, and it
+        " replaces any heading remembered at the same depth or deeper.
+        if line !~# s:task
+            call filter(trail, {k, v -> str2nr(k) < indent})
+            let trail[indent] = s:heading(line)
+            continue
+        endif
+
+        if line =~# '^\s*[-*+]\s\+\[[xX]\]'
+            continue
+        endif
+
+        let date = matchstr(line, '@due(\zs\d\{4}-\d\d-\d\d\ze)')
+        let now = line =~# '@now\>'
+        let late = !empty(date) && date <# today
+
+        " Blocked work stays out of a list of things to do - unless it is
+        " already late, when chasing it is the thing to do, or you have said
+        " you are doing it now, which settles it.
+        if !now && !late && line =~# '@waiting\>'
+            continue
+        endif
+
+        " @now wins outright: it is a decision, where every other rule here
+        " is an inference from a date. It is tested first as well as sorted
+        " first, or a @now task that were also late would be filed as late.
+        let bucket = ''
+        if now
+            let bucket = 'now'
+        elseif late
+            let bucket = 'late'
+        elseif date ==# today
+            let bucket = 'today'
+        elseif line =~# '#p1\>'
+            let bucket = 'p1'
+        elseif !empty(date) && date <=# soon
+            let bucket = 'soon'
+        endif
+        if empty(bucket)
+            continue
+        endif
+
+        let path = s:path(trail, indent)
+        call add(found, {
+                    \ 'key':    printf('%d %s %05d', order[bucket],
+                    \                  empty(date) ? '9999-99-99' : date, lnum),
+                    \ 'lnum':   lnum,
+                    \ 'bucket': bucket,
+                    \ 'text':   empty(path) ? s:text(line)
+                    \           : path . ' | ' . s:text(line)})
+    endfor
+
+    call sort(found, {a, b -> a.key ==# b.key ? 0 : a.key ># b.key ? 1 : -1})
+    return found
+endfunction
+
+" One display line: "late  Measurement > research | Get grant @due(...)".
+function! s:display(item) abort
+    return printf('%-5s %s', a:item.bucket, a:item.text)
+endfunction
+
+" The one summary buffer, tracked by number rather than looked up by name:
+" two panels would be two answers to the same question, and a name is a poor
+" handle - bufnr() takes a pattern, and anything resembling a scheme (todo://)
+" is claimed by netrw before it can become a scratch buffer.
+let s:panel_buf = -1
+
+function! s:panel_win() abort
+    return (s:panel_buf > 0 && bufexists(s:panel_buf)) ? bufwinnr(s:panel_buf) : -1
+endfunction
+
+" Set up the panel window: a scratch buffer, its own labels coloured with the
+" groups the file itself uses, and enough of a keymap to get out of it.
+function! s:panel_open() abort
+    silent botright new
+    " Name it before locking it: :file counts as changing the buffer, so on a
+    " 'nomodifiable' one it fails with E21 and the panel ends up nameless.
+    silent file [todo-now]
+    " wipe, not hide: a hidden panel buffer outlives its window and then
+    " collides with the next one by name (E95). Nothing in it is worth
+    " keeping - it is rebuilt from the file every time anyway.
+    setlocal buftype=nofile bufhidden=wipe noswapfile nobuflisted
+    setlocal nonumber norelativenumber nowrap cursorline winfixheight
+    setlocal nomodifiable
+    let s:panel_buf = bufnr('%')
+
+    syntax match todoSumLate  /^late\>/
+    syntax match todoSumSoon  /^\%(today\|soon\)\>/
+    syntax match todoSumNow   /^now\>/
+    syntax match todoSumP1    /^p1\>/
+    " The heading path, up to the pipe: context, so it recedes.
+    syntax match todoSumPath  /^\S\+\s\+\zs[^|]*|/
+
+    hi def link todoSumLate todoOverdue
+    hi def link todoSumSoon todoDueSoon
+    hi def link todoSumNow  todoTag
+    hi def link todoSumP1   todoPriority
+    hi def link todoSumPath Comment
+
+    nnoremap <buffer> <silent> <CR> :call todo#SummaryJump()<CR>
+    nnoremap <buffer> <silent> q    :close<CR>
+
+    augroup todo_panel
+        autocmd! * <buffer>
+        autocmd WinEnter <buffer> call todo#SummaryAlone()
+    augroup END
+endfunction
+
+" The panel has been left as the only window - by :bdelete on the file, or
+" :close, or anything else that takes the file off screen without going
+" through QuitPre.
+"
+" Whether vim should still be running is not a question a summary window gets
+" to answer. So hand the window to a real buffer if there is one, and quit
+" only when there is genuinely nothing else open.
+function! todo#SummaryAlone() abort
+    if winnr('$') != 1
+        return
+    endif
+
+    let alt = s:fallback()
+    if alt <= 0
+        quit
+        return
+    endif
+
+    execute 'buffer ' . alt
+    " The panel's window settings must not be inherited by whatever lands
+    " here: they belong to the window, not to the buffer that has just gone.
+    setlocal number< relativenumber< wrap< cursorline< winfixheight<
+endfunction
+
+" A buffer to fall back to: the alternate file if it is a real one, else any
+" other listed buffer. The file that was just taken off screen is the last
+" resort - showing it again is not what closing it meant.
+function! s:fallback() abort
+    let left = get(s:, 'left', 0)
+    let here = bufnr('%')
+    let cands = filter(range(1, bufnr('$')),
+                \ {_, b -> buflisted(b) && b != here})
+    if empty(cands)
+        return 0
+    endif
+
+    let others = filter(copy(cands), {_, b -> b != left})
+    if empty(others)
+        return cands[0]
+    endif
+    return index(others, bufnr('#')) >= 0 ? bufnr('#') : others[0]
+endfunction
+
+" Show everything gathered in a window under the file, and leave the cursor
+" where it was.
+"
+" An fzf picker over the same list came first and was removed. fzf is modal:
+" while it is up it owns the keyboard, so it can answer "which one of these"
+" and then it is gone - it cannot sit there saying what is on today. Hence a
+" panel that holds still and never takes focus; todo#SummaryFocus() is the
+" way in when you do want it.
+function! todo#Summary() abort
+    if &filetype !=# 'todo'
+        return
+    endif
+
+    let src = bufnr('%')
+    let found = s:gather()
+    let winnr = s:panel_win()
+
+    " Nothing to show: take the panel away rather than leave an empty box.
+    if empty(found)
+        if winnr > 0
+            execute winnr . 'wincmd c'
+        endif
+        return
+    endif
+
+    if winnr > 0
+        execute winnr . 'wincmd w'
+    else
+        call s:panel_open()
+    endif
+
+    setlocal modifiable
+    silent %delete _
+    call setline(1, map(copy(found), {_, v -> s:display(v)}))
+    setlocal nomodifiable nomodified
+    execute 'resize ' . min([len(found), get(g:, 'todo_summary_height', 8)])
+    let b:todo_src = src
+    let b:todo_lnums = map(copy(found), {_, v -> v.lnum})
+    call cursor(1, 1)
+
+    " Back to the file by its window, not by whichever window we came from:
+    " the panel must never end up holding the cursor.
+    let back = bufwinnr(src)
+    if back > 0
+        execute back . 'wincmd w'
+    endif
+endfunction
+
+" Rebuild the panel once the current event has finished.
+"
+" Building it means creating a window and stepping back out of one, which is
+" not reliable from inside the event that asked for it: during startup vim
+" re-enters the first window afterwards, and the first window would be the
+" panel - so the file would open with the cursor in the summary. A zero-delay
+" timer runs the work after things settle, and stopping the previous one
+" coalesces a burst of edits into a single rebuild.
+function! todo#SummarySoon() abort
+    if get(s:, 'timer', 0)
+        call timer_stop(s:timer)
+    endif
+    let s:timer = timer_start(0, {-> todo#Summary()})
+endfunction
+
+" Close the panel if no todo file is on screen any more - after :e something
+" else, say. Deferred, like the rebuild: closing a window from inside
+" BufWinLeave rearranges the layout in the middle of whatever is closing it,
+" and vim responds by abandoning the operation, so :q would close the panel
+" and leave the file open instead of quitting.
+function! todo#SummaryPruneSoon() abort
+    " Remember what is going off screen, so a fallback does not re-show it.
+    let s:left = bufnr('%')
+    call timer_start(0, {-> todo#SummaryPrune()})
+endfunction
+
+function! todo#SummaryPrune() abort
+    for w in range(1, winnr('$'))
+        if getbufvar(winbufnr(w), '&filetype') ==# 'todo'
+            return
+        endif
+    endfor
+    call todo#SummaryClose()
+endfunction
+
+" Close the panel, wherever the cursor happens to be. Never as the last
+" window: closing that one would take vim down with it.
+function! todo#SummaryClose() abort
+    let winnr = s:panel_win()
+    if winnr > 0 && winnr('$') > 1
+        execute winnr . 'wincmd c'
+    endif
+endfunction
+
+" Put the cursor in the panel, opening it first if it is not up. The panel
+" itself never takes focus, so this is the way in; <C-w> commands work from
+" there like any other window, and q closes it.
+function! todo#SummaryFocus() abort
+    call todo#Summary()
+    let winnr = s:panel_win()
+    if winnr > 0
+        execute winnr . 'wincmd w'
+    else
+        echo 'todo: nothing late, due soon, @now or #p1'
+    endif
+endfunction
+
+function! todo#SummaryToggle() abort
+    if s:panel_win() > 0
+        call todo#SummaryClose()
+    else
+        call todo#Summary()
+    endif
+endfunction
+
+" <CR> in the panel: go to that task in the file it came from.
+function! todo#SummaryJump() abort
+    let lnum = get(get(b:, 'todo_lnums', []), line('.') - 1, 0)
+    let src = get(b:, 'todo_src', 0)
+    if !lnum || !bufexists(src)
+        return
+    endif
+
+    let winnr = bufwinnr(src)
+    if winnr > 0
+        execute winnr . 'wincmd w'
+    else
+        execute 'buffer ' . src
+    endif
+    execute lnum
+    normal! zvzz
 endfunction
 
 " Colour @due dates by how close they are: late, or due within the next few
