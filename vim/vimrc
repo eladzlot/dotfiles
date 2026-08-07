@@ -158,18 +158,37 @@ let g:airline#extensions#tabline#fnamemod = ':t'
 
 set t_Co=256                   " Enable full-color support
 
-" termguicolors was tried here and reverted, but the reason turned out to be a
-" misdiagnosis: the file corruption blamed on it was really the <esc> mapping
-" in the Key Mappings section, which is now gone. It is probably safe to turn
-" on now. Test it on a scratch file before trusting it.
+" 24-bit colour. molokai is written in exact values - #F92672, #E6DB74 - and
+" without this vim picks the nearest cell of the 256-colour cube instead.
+" Those cells all sit further out than the colours they stand in for: the
+" red-pink of an error arrives as hot magenta (#FF00AF), and the gold of a
+" warning washes out to near-white (#FFFFAF).
+"
+" This was tried once before and reverted, but that was a misdiagnosis: the
+" file corruption blamed on it was really the <esc> mapping in the Key
+" Mappings section, which is now gone. The mechanism was the one this file
+" documents twice elsewhere - enabling termguicolors makes vim ask the
+" terminal for its background colour (OSC 11), the reply begins with <esc>,
+" the mapping fired, and the rest of the reply ran as normal-mode commands.
+"
+" Clearing t_RB and t_RF stops the queries being sent at all, so the replies
+" cannot arrive however <esc> is bound later. Nothing is lost by it:
+" 'background' is set explicitly just below, which is all the queries were
+" for.
+set t_RB=
+set t_RF=
+
+if has('termguicolors')
+    set termguicolors
+endif
 
 set background=dark            " Use colors that look good
                                " on a dark background
 
 " these are read by the colorscheme, so they must be set before it loads
 let g:molokai_original = 0
-" only matters on the 256-colour fallback path above; ignored under
-" termguicolors, where molokai uses its exact gui colours
+" only matters when termguicolors is off - it improves the 256-colour
+" approximations, which are no longer what gets drawn
 let g:rehash256 = 1
 
 colorscheme molokai            " Use custom color scheme
