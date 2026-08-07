@@ -51,13 +51,16 @@ Inventing one costs nothing and breaks nothing.
     todoDone        a whole finished line, tags and all
     todoDue         a @due tag
     todoOverdue     a @due tag whose date is before today
-    todoDueToday    a @due tag whose date is today
+    todoDueSoon     a @due tag due within the next few days, today included
     todoWaiting     a @waiting tag and its note
     todoPriority    a #tag
     todoTag         any other @tag
 
 The three states of a due date are meant to read as a ramp: orange for a date
-still ahead, yellow for today, red for late.
+still out of reach, yellow once it is close enough to plan around, red for one
+already past.
+
+How far ahead "soon" reaches is g:todo_soon_days, in days, default 3.
 
 Each group is linked to a standard group with |:highlight-default|, so any
 colorscheme gives them something sensible and any of them can be overridden
@@ -65,7 +68,7 @@ in the vimrc without touching the syntax file: >
 
     highlight link todoPriority ErrorMsg
 <
-todoOverdue and todoDueToday are not syntax groups. "Before today" is not a
+todoOverdue and todoDueSoon are not syntax groups. "Before today" is not a
 fixed pattern, so it cannot be a syntax rule; todo#Refresh() finds those dates
 and paints them with |matchaddpos()|, which sits above syntax highlighting and
 therefore wins. Those matches belong to the window rather than the buffer, so

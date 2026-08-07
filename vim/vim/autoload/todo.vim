@@ -73,7 +73,17 @@ function! todo#SetDue() abort
     call todo#Refresh()
 endfunction
 
-" Colour @due dates by how they compare with today.
+" The last date that still counts as soon.
+"
+" Walking today's date forward is the whole reason any of this needs code:
+" "within three days" cannot be written as a pattern, but the comparison
+" afterwards is an ordinary string compare, because ISO dates sort as text.
+function! s:soon() abort
+    return strftime('%Y-%m-%d', localtime() + get(g:, 'todo_soon_days', 3) * 86400)
+endfunction
+
+" Colour @due dates by how close they are: late, or due within the next few
+" days. Everything further out keeps the plain @due colour.
 "
 " This cannot be a syntax rule: "before today" is not a fixed pattern. ISO
 " dates compare correctly as plain strings, so the only work is finding them.
@@ -88,6 +98,7 @@ function! todo#Refresh() abort
     call todo#Clear()
 
     let today = strftime('%Y-%m-%d')
+    let soon = s:soon()
     let lnum = 0
     for line in getline(1, '$')
         let lnum += 1
@@ -105,8 +116,8 @@ function! todo#Refresh() abort
         let group = ''
         if date <# today
             let group = 'todoOverdue'
-        elseif date ==# today
-            let group = 'todoDueToday'
+        elseif date <=# soon
+            let group = 'todoDueSoon'
         endif
         if !empty(group)
             call add(w:todo_matches,

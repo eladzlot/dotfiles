@@ -51,11 +51,12 @@ hi def link todoTag      PreProc
 " matchaddpos(). Defined here so the colours all live in one place.
 "
 " The three states of a due date are meant to read as a ramp - orange for a
-" date ahead, yellow for today, red for late - so these two are linked for
-" their colour rather than their name. WarningMsg is the obvious name for
-" "today" and the wrong choice: molokai draws it, and Todo, as white on a grey
-" block, which inline looks like no highlighting at all.
+" date still out of reach, yellow once it is within a few days, red for one
+" already past - so these two are linked for their colour rather than their
+" name. WarningMsg is the obvious name for the middle one and the wrong
+" choice: molokai draws it, and Todo, as white on a grey block, which inline
+" looks like no highlighting at all.
 hi def link todoOverdue  ErrorMsg
-hi def link todoDueToday MoreMsg
+hi def link todoDueSoon  MoreMsg
 
 let b:current_syntax = 'todo'
