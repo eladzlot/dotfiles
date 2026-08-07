@@ -10,6 +10,7 @@ let s:bullet = '^\(\s*\)\([-*+]\)\s\+\(\[[ xX]\]\)\='
 let s:task = '^\s*[-*+]\s\+\[[ xX]\]'
 
 let s:due = '@due(\d\{4}-\d\d-\d\d)'
+let s:done = '@done(\d\{4}-\d\d-\d\d)'
 
 " Open a new task below the cursor and start typing it.
 "
@@ -33,17 +34,27 @@ function! todo#NewTask() abort
     startinsert!
 endfunction
 
-" Flip [ ] and [x] on the current line.
+" Flip [ ] and [x] on the current line, stamping @done with today's date.
+"
+" The stamp is what makes a finished task worth keeping rather than deleting:
+" without a date, a pile of done tasks answers no question. Any stamp already
+" on the line goes first, so ticking rewrites it rather than accumulating
+" stamps, and unticking leaves nothing behind to mislead.
 function! todo#ToggleDone() abort
     let line = getline('.')
     if line !~# s:task
         return
     endif
+
+    let line = substitute(line, '\s*' . s:done, '', 'g')
     if line =~# '^\s*[-*+]\s\+\[ \]'
-        call setline('.', substitute(line, '\[ \]', '[x]', ''))
+        let line = substitute(line, '\[ \]', '[x]', '')
+        let line = substitute(line, '\s*$', '', '') . ' @done(' . strftime('%Y-%m-%d') . ')'
     else
-        call setline('.', substitute(line, '\[[xX]\]', '[ ]', ''))
+        let line = substitute(line, '\[[xX]\]', '[ ]', '')
     endif
+
+    call setline('.', line)
     call todo#Refresh()
 endfunction
 

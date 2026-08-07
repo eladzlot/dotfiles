@@ -37,6 +37,10 @@ a meaning:
     @waiting           the task is blocked. Whatever follows, up to the next
                        @ or #, is read as a note about what is being waited
                        on, and is dimmed with the tag.
+    @done(YYYY-MM-DD)  when the task was finished. Written by <leader>d, and
+                       removed again if the task is reopened. It needs no
+                       colour of its own: it only ever appears on a finished
+                       line, which is dimmed whole.
     #p1                a priority, or in fact any #tag.
 
 Every other @tag and #tag is highlighted too, just without a special colour.
@@ -85,7 +89,10 @@ All buffer-local, all normal mode, with the leader as set in the vimrc (,).
                     heading it goes one level in, which is where it belongs
                     just after typing the heading.
 
-    <leader>d       Flip [ ] and [x] on the current line. Does nothing on a
+    <leader>d       Flip [ ] and [x] on the current line, and stamp
+                    @done with today's date. Reopening a task removes the
+                    stamp; ticking one that already carries a stamp rewrites
+                    it rather than adding a second. Does nothing at all on a
                     line without a checkbox.
 
     <leader>u       Set or replace @due on the current line. Prompts, with
@@ -134,10 +141,10 @@ Agenda~
 
 Archiving~
     A function moving [x] lines to a "* Done" section, or to a separate
-    todo-archive.md. Pairs naturally with stamping @done(YYYY-MM-DD) at the
-    moment <leader>d ticks a task, which would also make the archive worth
-    reading. Open question: whether an archive is wanted at all, or whether
-    finished tasks should simply be deleted.
+    todo-archive.md. The @done stamps are already being written, so an
+    archive would be worth reading rather than being a heap of undated
+    lines. Open question: whether an archive is wanted at all, or whether
+    finished tasks should simply be deleted once they have been seen.
 
 Date completion~
     @due( then <c-x><c-o> offering today, tomorrow, next monday. The template
