@@ -91,7 +91,11 @@ when the window moves on to another file.
 ==============================================================================
 3. MAPPINGS                                                 *todo-md-mappings*
 
-All buffer-local, all normal mode, with the leader as set in the vimrc (,).
+Normal mode, with the leader as set in the vimrc (,). All of them are
+buffer-local except the first, which has to work from anywhere and therefore
+lives in the vimrc rather than in ftplugin/todo.vim.
+
+    <leader>t       Open ~/todo.md.
 
     <leader>n       Open a new task below the cursor and start typing it.
                     Next to another task the new one is a sibling; under a
@@ -261,10 +265,6 @@ Date completion~
 Overdue count~
     In the statusline or the sign column, reusing the scan todo#Refresh()
     already does. Only useful if todo.md is open most of the day.
-
-Opening the file~
-    nnoremap <leader>t :e ~/todo.md<CR> in the vimrc: the one piece of this
-    that cannot be filetype-local, because it has to work from anywhere.
 
 Sorting~
     Sort the tasks under the heading by due date, undated last. Small, and

@@ -283,6 +283,11 @@ nnoremap <leader>h :nohlsearch<CR>
     nnoremap <leader>vr :source $MYVIMRC<CR>
 " }}}
 
+" [,t] Open the todo file. This is the one part of the todo filetype that
+" cannot live in vim/ftplugin/todo.vim, because it has to work from anywhere.
+" See :help todo-md for the rest.
+nnoremap <leader>t :edit ~/todo.md<CR>
+
 nnoremap <C-P> :Files<CR>
 " the trailing space below is deliberate: it leaves the cmdline open at `:Rg `
 nnoremap <C-F> :Rg 
