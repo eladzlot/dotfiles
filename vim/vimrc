@@ -301,7 +301,3 @@ nnoremap <leader>x :s/\v([\.\?\!]['"\u201d\u2019]*)\s+/\1\r/g<CR>:noh<CR>
 " ----------------------------------------------------------------------
 " Lives in vim/autoload/cite.vim, mapped per filetype in
 " vim/ftplugin/{pandoc,rmd}.vim
-
-" single line do and dp for diffget
-nnoremap <silent> <leader>dp V:diffput<cr>
-nnoremap <silent> <leader>dg V:diffget<cr>
