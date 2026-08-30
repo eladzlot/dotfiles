@@ -120,6 +120,37 @@ lives in the vimrc rather than in ftplugin/todo.vim.
 
     <leader>G       Show or hide the summary panel - see |:TodoSummary|.
 
+Three more in insert mode, so that a list can be typed straight through
+without reaching for the leader between tasks.
+
+    <CR>            Finish this task and open the next one, in the place
+                    <leader>n would have put it: a sibling next to another
+                    task, one level in under a heading. On a task that is
+                    still empty it clears the line instead - a second <CR>
+                    on a blank task means "no more of these", and that is
+                    the way back out of a list. Anywhere off a bullet it is
+                    an ordinary <CR>.
+
+                    It does not split the line at the cursor the way <CR>
+                    normally does. Whatever follows the cursor stays on the
+                    task being finished; cutting a task in half mid-word is
+                    not what asking for a new one means.
+
+    <Tab>           Shift the line one level right,
+
+    <S-Tab>         and one level left, stopping at column zero.
+
+                    Both work from anywhere on the line: they are
+                    |i_CTRL-T| and |i_CTRL-D|, which shift the whole line by
+                    'shiftwidth' rather than inserting at the cursor, so a
+                    task can be moved in or out in the middle of typing it.
+                    Only the line itself moves - a heading shifted away from
+                    the tasks under it leaves them where they were.
+
+                    The cost is that <Tab> no longer inserts whitespace in
+                    these buffers. |i_CTRL-V| <Tab> still does, and with
+                    'expandtab' set the indent is spaces anyway.
+
 Folding is by indent, with everything open ('foldlevel' 99), so |zc| closes a
 section and |zR| opens them all again.
 

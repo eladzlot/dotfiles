@@ -12,26 +12,68 @@ let s:task = '^\s*[-*+]\s\+\[[ xX]\]'
 let s:due = '@due(\d\{4}-\d\d-\d\d)'
 let s:done = '@done(\d\{4}-\d\d-\d\d)'
 
-" Open a new task below the cursor and start typing it.
+" What a new task under this line starts with: indent, marker, empty checkbox.
 "
 " Next to another task the new one is a sibling; under a section heading it
 " belongs one level in, which is where you want it after typing the heading.
-function! todo#NewTask() abort
-    let parts = matchlist(getline('.'), s:bullet)
+function! s:prefix(line) abort
+    let parts = matchlist(a:line, s:bullet)
     if empty(parts)
-        let indent = matchstr(getline('.'), '^\s*')
-        let bullet = '*'
-    else
-        let indent = parts[1]
-        let bullet = parts[2]
-        if parts[3] ==# ''
-            let indent .= repeat(' ', &shiftwidth)
-        endif
+        return matchstr(a:line, '^\s*') . '* [ ] '
     endif
 
-    call append(line('.'), indent . bullet . ' [ ] ')
+    let indent = parts[1]
+    if parts[3] ==# ''
+        let indent .= repeat(' ', &shiftwidth)
+    endif
+    return indent . parts[2] . ' [ ] '
+endfunction
+
+" Open a new task below the cursor and start typing it.
+function! todo#NewTask() abort
+    call append(line('.'), s:prefix(getline('.')))
     call cursor(line('.') + 1, 1)
     startinsert!
+endfunction
+
+" <CR> while typing: finish this task and open the next one.
+"
+" Returned as keys rather than done here, because an <expr> mapping is not
+" allowed to change the buffer itself. They are also keys that never leave
+" insert mode, which matters more than it looks: the obvious version returned
+" <Esc>:call todo#NewTask()<CR>, and that reads correctly at typing speed but
+" loses text when you type fast or paste. startinsert! only takes effect once
+" vim runs out of keys to process, so anything already typed behind the <CR>
+" is executed as normal-mode commands first.
+"
+" On a task still empty the line is cleared instead: a second <CR> on a blank
+" task means "no more of these", and this is the way back out of a list.
+" Anywhere off a bullet, <CR> is left alone.
+"
+" The clear deletes into the black hole register. cc and S would do the same
+" job, and with 'clipboard' set to unnamedplus they would put the line on the
+" system clipboard for the sake of pressing return.
+"
+" One deliberate difference from an ordinary <CR>: the line is not split at
+" the cursor. Whatever follows the cursor stays on the task being finished -
+" cutting a task in half mid-word is not what asking for a new one means.
+"
+" The 0 CTRL-D clears whatever 'autoindent' has just copied onto the new line,
+" so the prefix is written from column one and is exactly the one <leader>n
+" would have used, rather than that indent plus this one. Both of the more
+" obvious spellings are wrong: <C-u> carries on past an indent it has finished
+" deleting and eats the line break itself, which left a task at column zero
+" with no new line at all, and <C-o>"_d0 steps out of insert for one command
+" and loses the prefix to the same race as startinsert!.
+function! todo#Return() abort
+    let line = getline('.')
+    if line !~# s:bullet
+        return "\<CR>"
+    endif
+    if s:text(line) =~# '^\s*$'
+        return "\<Esc>0\"_Da"
+    endif
+    return "\<End>\<CR>0\<C-d>" . s:prefix(line)
 endfunction
 
 " Flip [ ] and [x] on the current line, stamping @done with today's date.

@@ -56,6 +56,7 @@ Vim gives its own highlighting to each file with the name `todo.md`.
 It shows the tasks, the tags and the due dates, and it makes a late date red.
 It also adds three keys: `,n` for a new task, `,d` to complete a task,
 and `,u` to set a due date.
+While typing a task, Enter starts the next one and Tab shifts it in or out.
 
 For more information, start vim and type `:help todo-md`.
 
